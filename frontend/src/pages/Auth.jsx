@@ -50,8 +50,6 @@ function Auth() {
 
         setSuccess(data.message || "Connexion réussie !");
         
-        // La suite dépendra de la réponse du backend :
-        // par exemple, récupérer le token et rediriger l'utilisateur.
       }
     } catch (err) {
       setError(err.message || "Une erreur est survenue.");
