@@ -1,6 +1,7 @@
 const express = require("express");
-const dotenv = require('dotenv');
 const bcrypt = require("bcrypt");
+const dotenv = require('dotenv');
+dotenv.config();
 
 const User = require("./models/User");
 const { generateToken } = require("./utils/jwt");
@@ -9,11 +10,15 @@ const authenticate = require("./middleware/auth");
 
 const app = express();
 
-dotenv.config();
-
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+function sendError(res, status, code, message) {
+  return res.status(status).json({ error: { code, message } });
+}
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
@@ -40,26 +45,28 @@ app.post("/api/auth/register", async (req, res) => {
     const username = req.body.username
 
     if (!notNormalizedemail || !pw || !username) {
-      return res.status(400).json({
-        error: "Email and password are required"
-      });
+      return sendError(res, 400, "INVALID_INPUT", "Email and password are required");
     }
 
     const email = notNormalizedemail.trim().toLowerCase();
 
+    if (!EMAIL_REGEX.test(email)) {
+      return sendError(res, 400, "INVALID_INPUT", "Email is not valid");
+    }
+
     //check if the user already exists and if it does send an error
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
-      return res.status(409).json({
-        message: "This email is already in use"
-      });
+      return sendError(res, 409, "EMAIL_ALREADY_USED", "This email is already in use");
     }
 
     const existingUserName = await User.findOne({ username: username });
     if (existingUserName) {
-      return res.status(409).json({
-        message: "This username is already in use"
-      });
+      return sendError(res, 409, "USERNAME_ALREADY_USED", "This username is already in use");
+    }
+
+    if (pw.length < 8) {
+      return sendError(res, 400, "INVALID_INPUT", "Password must be at least 8 characters");
     }
         
     const pwhash = await bcrypt.hash(pw, 10);
@@ -70,12 +77,14 @@ app.post("/api/auth/register", async (req, res) => {
         passwordHash: pwhash
     });
 
-    res.status(201).json({
-        id: user._id,
-        email: user.email
+    const token = generateToken(user);
+
+    return res.status(201).json({
+      user: { id: user._id.toString(), email: user.email },
+      token,
     });
   } catch (error) {
-    res.status(500).json({ error: "Registration failed" });
+    return sendError(res, 500, "INTERNAL_ERROR", "Registration failed");
   }
 });
 
@@ -86,9 +95,7 @@ app.post("/api/auth/login", async (req, res) => {
     const pwhash = req.body.password
 
     if (!notNormalizedemail || !pwhash) {
-      return res.status(400).json({
-        error: "Email and password are required"
-      });
+      return sendError(res, 400, "INVALID_INPUT", "Email and password are required");
     }
 
     const email = notNormalizedemail.trim().toLowerCase();
@@ -96,29 +103,24 @@ app.post("/api/auth/login", async (req, res) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      return res.status(401).json({
-        error: "Invalid email or password"
-      });
+      return sendError(res, 401, "UNAUTHORIZED", "Invalid email or password");
     }
 
     const isValid = await bcrypt.compare(pwhash, user.passwordHash);
 
     if (!isValid) {
-      return res.status(401).json({
-        error: "Invalid email or password"
-      });
+       return sendError(res, 401, "UNAUTHORIZED", "Invalid email or password");
     }
 
     const token = generateToken(user);
 
-    res.status(201).json({
-        id: user._id,
-        email: user.email,
-        token: token
+    return res.status(200).json({
+      user: { id: user._id.toString(), email: user.email },
+      token,
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ error: "Login failed" });
+    return sendError(res, 500, "INTERNAL_ERROR", "Login failed");
   }
 });
 
