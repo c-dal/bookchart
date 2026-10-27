@@ -11,6 +11,7 @@ services:
       - api
 
   api:
+    command: sh -c "npm install && npm run dev"
     build: ./api
     ports:
       - "3000:3000"
