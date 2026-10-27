@@ -10,15 +10,14 @@ function App() {
 
       {/* Contenu principal sous la barre de navigation */}
       <section className="main-content">
-        <h2>Teste ton nouveau style</h2>
+        <h2>Interface de base</h2>
         <p>
-          Si ton index.css est bien chargé, les couleurs, les polices,
-          les espacements et les styles globaux devraient apparaître ici.
+          blblblblblbllbblbllblb
         </p>
       </section>
 
       <footer className="app-footer">
-        <p>BookChart · Ton aventure littéraire commence ici.</p>
+        <p>Footer</p>
       </footer>
     </main>
   )

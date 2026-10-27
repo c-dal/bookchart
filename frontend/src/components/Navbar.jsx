@@ -2,7 +2,7 @@ import logo_site from "./../assets/bookchart_logo_site.png";
 function Navbar() {
   return (
     <nav className="navbar navbar-light">
-      <a className="navbar-brand" href="#">
+      <a className="navbar-brand" href="/home">
         <img
           src={logo_site}
           width="50"
@@ -16,7 +16,7 @@ function Navbar() {
         <input
           className="search-input"
           type="search"
-          placeholder="Rechercher un livre..."
+          placeholder="Rechercher un livre"
           aria-label="Rechercher"
         />
         <button
@@ -24,9 +24,12 @@ function Navbar() {
           type="submit"
           aria-label="Lancer la recherche"
         >
-          &#xF52A;
+          <i className="bi bi-search" aria-hidden="true"></i>
         </button>
       </form>
+      <a href="/profil" className="profile-link" aria-label="Mon profil">
+        <i className="bi bi-person-circle" aria-hidden="true"></i>
+      </a>
     </nav>
   );
 }
