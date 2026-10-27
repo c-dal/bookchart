@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 async function connectDB() {
   await mongoose.connect(
-    process.env.MONGODB_URI || "mongodb://mongo:27017/monapp"
+    process.env.MONGODB_URI
   );
 
   console.log("MongoDB connecté !");
