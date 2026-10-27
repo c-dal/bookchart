@@ -1,4 +1,5 @@
-# Logs
+.env*
+
 logs
 *.log
 npm-debug.log*
@@ -8,7 +9,6 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
 .vscode/*
 .idea
 .DS_Store
