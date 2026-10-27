@@ -1,22 +1,25 @@
-import { useState } from 'react'
-import './App.css'
-import Header from './components/Header'
-import Auth from './pages/Auth'
-import Library from './pages/Library'
+import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Header from "./components/Header";
+import Auth from "./pages/Auth";
+import Library from "./pages/Library";
 
 function App() {
   return (
-    <main className="app">
-      {/* La barre de navigation s'étend sur toute la largeur */}
-      <Header />
+    <BrowserRouter>
+      <main className="app">
+        <Header />
 
-      {/* Contenu principal sous la barre de navigation */}
-      <Library />
+        <Routes>
+          <Route path="/home" element={<Auth />} />
+          <Route path="/Library" element={<Library />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+        </Routes>
 
-      <footer className="app-footer">
-      </footer>
-    </main>
-  )
+        <footer className="app-footer"></footer>
+      </main>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
