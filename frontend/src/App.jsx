@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import Header from './components/Header'
 import Auth from './pages/Auth'
+import Library from './pages/Library'
 
 function App() {
   return (
@@ -10,10 +11,9 @@ function App() {
       <Header />
 
       {/* Contenu principal sous la barre de navigation */}
-      <Auth/>
+      <Library />
 
       <footer className="app-footer">
-        <p>Footer</p>
       </footer>
     </main>
   )

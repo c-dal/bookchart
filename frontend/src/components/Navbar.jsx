@@ -1,4 +1,5 @@
 import logo_site from "./../assets/bookchart_logo_site.png";
+import Library from "./../pages/Library";
 function Navbar() {
   return (
     <nav className="navbar navbar-light">
@@ -27,7 +28,7 @@ function Navbar() {
           <i className="bi bi-search" aria-hidden="true"></i>
         </button>
       </form>
-      <a href="/profil" className="profile-link" aria-label="Mon profil">
+      <a href="/Library" className="profile-link" aria-label="Mon profil">
         <i className="bi bi-person-circle" aria-hidden="true"></i>
       </a>
     </nav>
