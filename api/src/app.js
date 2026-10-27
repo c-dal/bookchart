@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require('dotenv');
 const bcrypt = require("bcrypt");
 
-const User = require("./models/models");
+const User = require("./models/User");
 const { generateToken } = require("./utils/jwt");
 const connectDB = require("./config/db");
 const authenticate = require("./middleware/auth");
@@ -35,14 +35,17 @@ async function startServer() {
 //register
 app.post("/api/auth/register", async (req, res) => {
   try{
-    const email = req.body.email 
+    const notNormalizedemail = req.body.email 
     const pw = req.body.password
+    const username = req.body.username
 
-    if (!email || !pw) {
+    if (!notNormalizedemail || !pw || !username) {
       return res.status(400).json({
         error: "Email and password are required"
       });
     }
+
+    const email = notNormalizedemail.trim().toLowerCase();
 
     //check if the user already exists and if it does send an error
     const existingUser = await User.findOne({ email: email });
@@ -51,12 +54,20 @@ app.post("/api/auth/register", async (req, res) => {
         message: "This email is already in use"
       });
     }
+
+    const existingUserName = await User.findOne({ username: username });
+    if (existingUserName) {
+      return res.status(409).json({
+        message: "This username is already in use"
+      });
+    }
         
     const pwhash = await bcrypt.hash(pw, 10);
 
     const user = await User.create({
+        username: username,
         email: email,
-        password: pwhash
+        passwordHash: pwhash
     });
 
     res.status(201).json({
@@ -71,14 +82,16 @@ app.post("/api/auth/register", async (req, res) => {
 //login
 app.post("/api/auth/login", async (req, res) => {
   try{
-    const email = req.body.email
+    const notNormalizedemail = req.body.email
     const pwhash = req.body.password
 
-    if (!email || !pwhash) {
+    if (!notNormalizedemail || !pwhash) {
       return res.status(400).json({
         error: "Email and password are required"
       });
     }
+
+    const email = notNormalizedemail.trim().toLowerCase();
 
     const user = await User.findOne({ email: email });
 
@@ -88,7 +101,7 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    const isValid = await bcrypt.compare(pwhash, user.password);
+    const isValid = await bcrypt.compare(pwhash, user.passwordHash);
 
     if (!isValid) {
       return res.status(401).json({
