@@ -29,7 +29,7 @@ const libraryEntrySchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['À lire', 'En cours', 'Lu'],
+        enum: ['TO_READ', 'FINISHED', 'CURRENT'],
         required: true
     }
 }, { timestamps: true });
