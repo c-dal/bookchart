@@ -8,7 +8,18 @@ const { register, login } = require("./routes/authFunctions");
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const cors = require('cors');
+
+const PORT = process.env.PORT;
+
+const allowedOrigins = [
+  process.env.CORS_ORIGIN
+].filter(Boolean);
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 
 app.use(express.json());
 
