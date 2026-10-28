@@ -8,6 +8,13 @@ const FIELDS = [
   "author_key",
 ].join(",");
 
+function createServiceError(status, code, message) {
+  const error = new Error(message);
+  error.status = status;
+  error.code = code;
+  return error;
+}
+
 function normalize(value = "") {
   return value
     .normalize("NFD")
@@ -37,13 +44,14 @@ async function fetchBooks(params, limit = 10) {
   );
 
   if (!response.ok) {
-    throw new Error(
-      `Open Library a répondu avec le statut ${response.status}`
+    throw createServiceError(
+      502,
+      "OPEN_LIBRARY_UNAVAILABLE",
+      "Open Library est temporairement indisponible."
     );
   }
 
   const data = await response.json();
-
   return data.docs ?? [];
 }
 
@@ -52,37 +60,34 @@ function scoreBook(book, query) {
   const queryTokens = normalizedQuery.split(" ").filter(Boolean);
 
   const title = normalize(book.title);
-  const authors = (book.author_name ?? [])
-    .map(normalize);
+  const authors = (book.author_name ?? []).map(normalize);
 
   let score = 0;
 
-  // Correspondance du titre complet
   if (title === normalizedQuery) {
     score += 100;
   } else if (title.includes(normalizedQuery)) {
     score += 60;
   }
 
-  // Correspondances des mots du titre
   for (const token of queryTokens) {
     if (title.includes(token)) {
       score += 12;
     }
 
-    // Correspondances des mots dans le nom des auteurs
     if (authors.some((author) => author.includes(token))) {
       score += 15;
     }
   }
 
-  // Bonus pour un titre contenant plusieurs mots de la recherche
   const matchedTitleTokens = queryTokens.filter((token) =>
     title.includes(token)
   ).length;
 
-  if (queryTokens.length > 1 &&
-    matchedTitleTokens === queryTokens.length) {
+  if (
+    queryTokens.length > 1 &&
+    matchedTitleTokens === queryTokens.length
+  ) {
     score += 25;
   }
 
@@ -110,13 +115,8 @@ async function searchBooks(search, limit = 10) {
 
   const tokens = query.split(/\s+/).filter(Boolean);
 
-  // Recherche globale : titre, auteur et autres champs indexés
-  const searches = [
-    fetchBooks({ q: query }, 10),
-  ];
+  const searches = [fetchBooks({ q: query }, 10)];
 
-  // Recherche complémentaire par titre et auteur pour les saisies
-  // qui mélangent des mots du titre et du nom de l'auteur.
   if (tokens.length >= 2) {
     searches.push(
       fetchBooks({ title: tokens[0] }, 10),
@@ -124,8 +124,6 @@ async function searchBooks(search, limit = 10) {
     );
   }
 
-  // Si une recherche complémentaire échoue, on conserve les autres
-  // résultats dès lors que la recherche globale fonctionne.
   const results = await Promise.allSettled(searches);
 
   const successfulResults = results
@@ -133,7 +131,11 @@ async function searchBooks(search, limit = 10) {
     .map((result) => result.value);
 
   if (successfulResults.length === 0) {
-    throw new Error("Toutes les recherches Open Library ont échoué.");
+    throw createServiceError(
+      502,
+      "OPEN_LIBRARY_UNAVAILABLE",
+      "Toutes les recherches Open Library ont échoué."
+    );
   }
 
   const uniqueBooks = new Map();
@@ -160,13 +162,16 @@ async function searchBooks(search, limit = 10) {
   };
 }
 
-
 async function fetchWorkDetails(openLibraryId) {
-  // On accepte uniquement un identifiant de type OL45804W.
-  if (!/^OL\d+W$/.test(openLibraryId)) {
-    const error = new Error("Identifiant Open Library invalide.");
-    error.status = 400;
-    throw error;
+  if (
+    typeof openLibraryId !== "string" ||
+    !/^OL\d+W$/.test(openLibraryId)
+  ) {
+    throw createServiceError(
+      400,
+      "INVALID_BOOK_ID",
+      "Identifiant Open Library invalide."
+    );
   }
 
   const url = `https://openlibrary.org/works/${encodeURIComponent(openLibraryId)}.json`;
@@ -179,26 +184,28 @@ async function fetchWorkDetails(openLibraryId) {
   });
 
   if (response.status === 404) {
-    const error = new Error("Livre introuvable sur Open Library.");
-    error.status = 404;
-    throw error;
+    throw createServiceError(
+      404,
+      "BOOK_NOT_FOUND",
+      "Livre introuvable sur Open Library."
+    );
   }
 
   if (!response.ok) {
-    const error = new Error("Open Library est temporairement indisponible.");
-    error.status = 502;
-    throw error;
+    throw createServiceError(
+      502,
+      "OPEN_LIBRARY_UNAVAILABLE",
+      "Open Library est temporairement indisponible."
+    );
   }
 
   const work = await response.json();
 
-  // Open Library peut renvoyer la description sous deux formats.
   const description =
     typeof work.description === "string"
       ? work.description
       : work.description?.value ?? null;
 
-  // Les auteurs d'une œuvre sont généralement référencés par leur clé.
   const authorReferences = work.authors ?? [];
 
   const authors = await Promise.all(
@@ -211,7 +218,9 @@ async function fetchWorkDetails(openLibraryId) {
         const authorResponse = await fetch(
           `https://openlibrary.org${authorKey}.json`,
           {
-            headers: { "User-Agent": "BookChart/1.0" },
+            headers: {
+              "User-Agent": "BookChart/1.0",
+            },
             signal: AbortSignal.timeout(5000),
           }
         );
@@ -221,20 +230,25 @@ async function fetchWorkDetails(openLibraryId) {
         const author = await authorResponse.json();
         return author.name ?? null;
       } catch {
-        // Un échec sur un auteur ne doit pas empêcher
-        // l'affichage du reste de la fiche.
         return null;
       }
     })
   );
 
+  // Certaines œuvres fournissent des genres sous forme de texte,
+  // d'autres sous forme de références.
   const genres = await Promise.all(
-    (work.genres ?? []).map(fetchGenreName)
+    (work.genres ?? []).map(async (genre) => {
+      if (typeof genre === "string") {
+        return genre;
+      }
+
+      return fetchGenreName(genre);
+    })
   );
 
-
   return {
-    openLibraryId: openLibraryId,
+    openLibraryId,
     title: work.title ?? "Titre inconnu",
     description,
     authors: authors.filter(Boolean),
@@ -246,9 +260,7 @@ async function fetchWorkDetails(openLibraryId) {
   };
 }
 
-
 async function fetchGenreName(genreReference) {
-  // Accepte "/tags/OL169T" ou { key: "/tags/OL169T" }
   const key =
     typeof genreReference === "string"
       ? genreReference
@@ -258,18 +270,24 @@ async function fetchGenreName(genreReference) {
 
   if (!match) return null;
 
-  const response = await fetch(
-    `https://openlibrary.org/tags/${match[1]}.json`,
-    {
-      headers: { "User-Agent": "BookChart/1.0" },
-      signal: AbortSignal.timeout(5000),
-    }
-  );
+  try {
+    const response = await fetch(
+      `https://openlibrary.org/tags/${match[1]}.json`,
+      {
+        headers: {
+          "User-Agent": "BookChart/1.0",
+        },
+        signal: AbortSignal.timeout(5000),
+      }
+    );
 
-  if (!response.ok) return null;
+    if (!response.ok) return null;
 
-  const tag = await response.json();
-  return tag.name ?? null;
+    const tag = await response.json();
+    return tag.name ?? null;
+  } catch {
+    return null;
+  }
 }
 
 module.exports = { searchBooks, fetchWorkDetails };

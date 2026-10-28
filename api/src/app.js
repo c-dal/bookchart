@@ -8,6 +8,7 @@ const { register, login } = require("./routes/authFunctions");
 const { searchRouter } = require("./routes/search");
 const { getUserBooks, changeBookStatus, removeBook } = require("./routes/libraryFunctions");
 const { bookRouter } = require("./routes/book");
+const sendError = require("./utils/sendError");
 
 const app = express();
 
@@ -25,10 +26,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-function sendError(res, status, code, message) {
-  return res.status(status).json({ error: { code, message } });
-}
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
@@ -52,12 +49,7 @@ app.post("/api/auth/login", login);
 app.get("/api/library", authenticate, getUserBooks);
 app.delete("/api/library/:bookId/remove", authenticate, removeBook )
 app.patch("/api/library/:bookId/status", authenticate, changeBookStatus);
-app.use("/api/search", searchRouter);
-app.use("/api/book", bookRouter);
-
-//test to see if the middleware auth works
-app.get("/api/library", authenticate, (req, res) => {
-  res.json({ userId: req.user.userId });
-});
+app.use("/api/search", authenticate, searchRouter);
+app.use("/api/book", authenticate, bookRouter);
 
 startServer();
