@@ -24,22 +24,8 @@ app.use(cors({
 
 app.use(express.json());
 
-function sendError(res, status, code, message) {
-  return res.status(status).json({ error: { code, message } });
-}
-
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
-});
-
-app.post("/api/auth/register", register);
-app.post("/api/auth/login", login);
-app.use("/api/search", searchRouter);
-app.use("/api/book", bookRouter);
-
-//test to see if the middleware auth works
-app.get("/api/library", authenticate, (req, res) => {
-  res.json({ userId: req.user.userId });
 });
 
 app.post("/api/auth/register", register);
