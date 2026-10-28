@@ -1,10 +1,13 @@
 const express = require("express");
 const dotenv = require('dotenv');
 dotenv.config();
+
 const authenticate = require("./middleware/auth");
 const { register, login } = require("./routes/authFunctions");
 const { searchRouter } = require("./routes/search");
+const { getUserBooks, changeBookStatus, removeBook } = require("./routes/libraryFunctions");
 const { bookRouter } = require("./routes/book");
+const sendError = require("./utils/sendError");
 
 const app = express();
 
@@ -39,5 +42,12 @@ app.get("/api/library", authenticate, (req, res) => {
   res.json({ userId: req.user.userId });
 });
 
+app.post("/api/auth/register", register);
+app.post("/api/auth/login", login);
+app.get("/api/library", authenticate, getUserBooks);
+app.delete("/api/library/:bookId/remove", authenticate, removeBook )
+app.patch("/api/library/:bookId/status", authenticate, changeBookStatus);
+app.use("/api/search", authenticate, searchRouter);
+app.use("/api/book", authenticate, bookRouter);
+
 module.exports = app;
-//startServer();
