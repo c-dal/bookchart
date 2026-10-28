@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useBooks } from "../context/BooksContext";
+import { authenticatedFetch } from "../services/authService";
 import "./Book.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -14,6 +15,7 @@ function Book() {
 
     const { livres, ajouterLivre } = useBooks();
     const [messageAjout, setMessageAjout] = useState("");
+    const [ajoutEnCours, setAjoutEnCours] = useState(false);
     const [ajoutReussi, setAjoutReussi] = useState(false);
 
     const livreDejaAjoute = livre
@@ -23,26 +25,40 @@ function Book() {
         )
         : false;
 
-    function handleAjouterLivre() {
-        if (!livre) return;
+
+    async function handleAjouterLivre() {
+        if (!livre || ajoutEnCours || livreDejaAjoute) return;
+
+        setAjoutEnCours(true);
+        setMessageAjout("");
+        setAjoutReussi(false);
 
         const description =
             typeof livre.description === "string"
                 ? livre.description
                 : livre.description?.value || "";
 
-        const resultat = ajouterLivre({
-            id: livre.id || bookid,
-            titre: livre.title,
-            auteur: livre.authors?.join(", ") || "Auteur inconnu",
-            genre: livre.genres?.[0] || "Genre non renseigné",
-            couverture: livre.thumbnail || "",
-            resume: description,
-        });
+        try {
+            const resultat = await ajouterLivre({
+                id: livre.id || bookid,
+                titre: livre.title,
+                auteur: livre.authors?.join(", ") || "Auteur inconnu",
+                genre: livre.genres?.[0] || "Genre non renseigné",
+                couverture: livre.thumbnail || "",
+                resume: description,
+            });
 
-        setMessageAjout(resultat.message);
-        setAjoutReussi(resultat.succes);
+            setMessageAjout(resultat.message);
+            setAjoutReussi(resultat.succes);
+        } catch (error) {
+            console.error("Erreur lors de l'ajout du livre :", error);
+            setMessageAjout("Impossible d'ajouter ce livre.");
+            setAjoutReussi(false);
+        } finally {
+            setAjoutEnCours(false);
+        }
     }
+
 
     useEffect(() => {
         const controller = new AbortController();
@@ -55,7 +71,7 @@ function Book() {
             setAjoutReussi(false);
 
             try {
-                const response = await fetch(
+                const response = await authenticatedFetch(
                     `${API_URL}/book/${encodeURIComponent(bookid)}`,
                     { signal: controller.signal }
                 );
@@ -187,11 +203,13 @@ function Book() {
                             type="button"
                             className="livre-ajout-bouton"
                             onClick={handleAjouterLivre}
-                            disabled={livreDejaAjoute}
+                            disabled={livreDejaAjoute || ajoutEnCours}
                         >
-                            {livreDejaAjoute
-                                ? "Déjà dans ma bibliothèque"
-                                : "Ajouter à ma bibliothèque"}
+                            {ajoutEnCours
+                                ? "Ajout en cours..."
+                                : livreDejaAjoute
+                                    ? "Déjà dans ma bibliothèque"
+                                    : "Ajouter à ma bibliothèque"}
                         </button>
 
                         {messageAjout && (

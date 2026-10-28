@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useBooks } from "../context/BooksContext";
 import "./Library.css";
 
@@ -9,6 +9,7 @@ function Library() {
     error,
     changerStatut,
     supprimerLivre,
+    rechargerBibliotheque,
   } = useBooks();
 
   const statutsLecture = ["À lire", "En cours", "Lu"];
@@ -16,6 +17,16 @@ function Library() {
   const [triAuteur, setTriAuteur] = useState("aucun");
   const [genreChoisi, setGenreChoisi] = useState("tous");
   const [statutChoisi, setStatutChoisi] = useState("tous");
+  const [statutsEnCours, setStatutsEnCours] = useState([]);
+  const [messageStatut, setMessageStatut] = useState("");
+
+  // Recharge la bibliothèque de l'utilisateur connecté depuis MongoDB
+  // chaque fois que la page s'affiche.
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      rechargerBibliotheque();
+    }
+  }, [rechargerBibliotheque]);
 
   const genres = [
     ...new Set(livres.map((livre) => livre.genre).filter(Boolean)),
@@ -44,13 +55,52 @@ function Library() {
     return 0;
   });
 
-  function handleSupprimerLivre(id) {
+
+  async function handleSupprimerLivre(mongoId) {
     const confirmation = window.confirm(
       "Voulez-vous vraiment supprimer ce livre de votre bibliothèque ?"
     );
 
-    if (confirmation) {
-      supprimerLivre(id);
+    if (!confirmation) return;
+
+    const resultat = await supprimerLivre(mongoId);
+
+    if (!resultat?.succes) {
+      setMessageStatut(
+        resultat?.message || "Impossible de supprimer ce livre."
+      );
+    } else {
+      setMessageStatut("");
+    }
+  }
+
+
+  async function handleChangerStatut(mongoId, nouveauStatut) {
+    if (!mongoId) {
+      setMessageStatut(
+        "Identifiant du livre manquant. Recharge la bibliothèque."
+      );
+      return;
+    }
+
+    setMessageStatut("");
+    setStatutsEnCours((ids) => [...ids, mongoId]);
+
+    try {
+      const resultat = await changerStatut(mongoId, nouveauStatut);
+
+      if (!resultat?.succes) {
+        setMessageStatut(
+          resultat?.message || "Impossible de modifier le statut."
+        );
+      }
+    } catch (err) {
+      console.error("Erreur de modification du statut :", err);
+      setMessageStatut("Impossible de modifier le statut du livre.");
+    } finally {
+      setStatutsEnCours((ids) =>
+        ids.filter((itemId) => itemId !== mongoId)
+      );
     }
   }
 
@@ -109,18 +159,29 @@ function Library() {
         </p>
       )}
 
+      {messageStatut && (
+        <p className="bibliotheque-message" role="status">
+          {messageStatut}
+        </p>
+      )}
+
       {!loading && livresAffiches.length === 0 && (
         <p>Aucun livre ne correspond à ces filtres.</p>
       )}
 
       <div className="livres-liste">
         {livresAffiches.map((livre) => (
-          <article className="livre-card" key={livre.id}>
-            <img
-              className="livre-couverture"
-              src={livre.couverture}
-              alt={`Couverture de ${livre.titre}`}
-            />
+          <article
+            className="livre-card"
+            key={livre.mongoId || livre.id}
+          >
+            {livre.couverture && (
+              <img
+                className="livre-couverture"
+                src={livre.couverture}
+                alt={`Couverture de ${livre.titre}`}
+              />
+            )}
 
             <div className="livre-infos">
               <h2>{livre.titre}</h2>
@@ -138,15 +199,22 @@ function Library() {
               </p>
 
               <div className="livre-statut">
-                <label htmlFor={`statut-${livre.id}`}>
+                <label htmlFor={`statut-${livre.mongoId || livre.id}`}>
                   Statut de lecture :
                 </label>
 
                 <select
-                  id={`statut-${livre.id}`}
+                  id={`statut-${livre.mongoId || livre.id}`}
                   value={livre.statut || "À lire"}
+                  disabled={
+                    !livre.mongoId ||
+                    statutsEnCours.includes(livre.mongoId)
+                  }
                   onChange={(event) =>
-                    changerStatut(livre.id, event.target.value)
+                    handleChangerStatut(
+                      livre.mongoId,
+                      event.target.value
+                    )
                   }
                 >
                   {statutsLecture.map((statut) => (
@@ -161,7 +229,8 @@ function Library() {
                 <button
                   type="button"
                   className="livre-supprimer"
-                  onClick={() => handleSupprimerLivre(livre.id)}
+                  disabled={!livre.mongoId}
+                  onClick={() => handleSupprimerLivre(livre.mongoId)}
                 >
                   Supprimer
                 </button>
