@@ -152,7 +152,7 @@ function Navbar() {
 
                     <div className="search-result-info">
                       <Link
-                        to={`/Book/book/${encodeURIComponent(livre.openLibraryId)}`}
+                        to={`/book/${encodeURIComponent(livre.openLibraryId)}`}
                         className="search-result-title"
                         onClick={() => setRechercheOuverte(false)}
                       >
@@ -186,7 +186,7 @@ function Navbar() {
         {menuOuvert && (
           <div className="profile-dropdown">
             <Link
-              to="/Library"
+              to="/library"
               className="profile-dropdown-item"
               onClick={() => setMenuOuvert(false)}
             >

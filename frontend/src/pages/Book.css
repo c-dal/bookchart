@@ -9,7 +9,8 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 28px;
-    color: #333;
+    color: var(--accent);
+    font-weight: bold;
     text-decoration: none;
 }
 
@@ -116,4 +117,68 @@
     .livre-informations h1 {
         font-size: 1.6rem;
     }
+}
+.livre-ajout {
+  margin-top: 1.5rem;
+}
+
+.livre-ajout-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.4rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #315c45;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.livre-ajout-bouton:hover:not(:disabled) {
+  background-color: #244634;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.livre-ajout-bouton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.livre-ajout-bouton:disabled {
+  background-color: #8a9b90;
+  color: #ffffff;
+  cursor: not-allowed;
+  opacity: 0.85;
+  box-shadow: none;
+  transform: none;
+}
+
+.livre-ajout-message {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.livre-ajout-message.succes {
+  color: #267346;
+}
+
+.livre-ajout-message.erreur {
+  color: #b42318;
+}
+
+@media (max-width: 480px) {
+  .livre-ajout-bouton {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+  }
 }
