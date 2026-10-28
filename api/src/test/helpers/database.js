@@ -8,7 +8,10 @@ let mongoServer;
 async function connectTestDatabase() {
   mongoServer = await MongoMemoryServer.create();
 
-  await mongoose.connect(mongoServer.getUri());
+  await mongoose.connect(mongoServer.getUri(), {
+    serverSelectionTimeoutMS: 3000,
+    runtimeAdapters: { os: require("os") },
+  });
 }
 
 async function clearTestDatabase() {
@@ -21,7 +24,10 @@ async function clearTestDatabase() {
 
 async function closeTestDatabase() {
   await mongoose.disconnect();
-  await mongoServer.stop();
+
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 }
 
 module.exports = {

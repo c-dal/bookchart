@@ -1,6 +1,10 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const libraryEntrySchema = new mongoose.Schema({
+    openLibraryId: {
+        type: String,
+        required: true
+    },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -8,15 +12,15 @@ const libraryEntrySchema = new mongoose.Schema({
     },
     isbn: {
         type: String,
-        required: true,
-        unique: true
+        default: null
     },
     title: {
         type: String,
         required: true
     },
     authors: {
-        type: [String]
+        type: [String],
+        default: []
     },
     description: {
         type: String,
@@ -35,8 +39,8 @@ const libraryEntrySchema = new mongoose.Schema({
 }, { timestamps: true });
 
 libraryEntrySchema.index(
-  { userId: 1, googleBooksId: 1 },
-  { unique: true }
+    { userId: 1, googleBooksId: 1 },
+    { unique: true }
 );
 
 libraryEntrySchema.index({ userId: 1, status: 1 });

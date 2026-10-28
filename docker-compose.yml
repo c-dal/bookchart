@@ -11,6 +11,7 @@ services:
       - api
 
   api:
+    command: sh -c "npm install && npm run dev"
     build: ./api
     ports:
       - "3000:3000"
@@ -19,7 +20,7 @@ services:
       - api_node_modules:/app/node_modules
     environment:
       PORT: 3000
-      MONGODB_URI: mongodb://mongo:27017/monapp
+      MONGODB_URI: mongodb://mongo:27017/bookchart
     depends_on:
       mongo:
         condition: service_healthy

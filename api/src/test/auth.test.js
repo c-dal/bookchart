@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../../src/app");
+const app = require("../app");
 
 describe("POST /api/auth/register", () => {
     it("crée un compte avec des données valides", async () => {
