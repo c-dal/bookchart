@@ -22,6 +22,10 @@ const libraryEntrySchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    genres: {
+        type: [String],
+        default: [],
+    },
     description: {
         type: String,
     },
@@ -39,7 +43,7 @@ const libraryEntrySchema = new mongoose.Schema({
 }, { timestamps: true });
 
 libraryEntrySchema.index(
-    { userId: 1, googleBooksId: 1 },
+    { userId: 1, openLibraryId: 1 },
     { unique: true }
 );
 
