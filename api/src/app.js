@@ -5,6 +5,7 @@ dotenv.config();
 const connectDB = require("./config/db");
 const authenticate = require("./middleware/auth");
 const { register, login } = require("./routes/authFunctions");
+const { searchRouter } = require("./routes/search");
 
 const app = express();
 
@@ -44,6 +45,7 @@ async function startServer() {
   }
 }
 
+app.use("/api/search", searchRouter);
 app.post("/api/auth/register", register);
 app.post("/api/auth/login", login);
 
