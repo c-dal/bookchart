@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useBooks } from "../context/BooksContext";
 import { authenticatedFetch } from "../services/authService";
 import "./Book.css";
+import { authenticatedFetch } from "../services/authService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -17,6 +18,7 @@ function Book() {
     const [messageAjout, setMessageAjout] = useState("");
     const [ajoutEnCours, setAjoutEnCours] = useState(false);
     const [ajoutReussi, setAjoutReussi] = useState(false);
+    const [ajoutEnCours, setAjoutEnCours] = useState(false);
 
     const livreDejaAjoute = livre
         ? livres.some(
@@ -33,26 +35,51 @@ function Book() {
         setMessageAjout("");
         setAjoutReussi(false);
 
-        const description =
-            typeof livre.description === "string"
-                ? livre.description
-                : livre.description?.value || "";
-
         try {
-            const resultat = await ajouterLivre({
-                id: livre.id || bookid,
-                titre: livre.title,
-                auteur: livre.authors?.join(", ") || "Auteur inconnu",
+            const response = await authenticatedFetch(
+                `${API_URL}/api/book/add/${encodeURIComponent(bookid)}`,
+                { method: "POST" }
+            );
+
+            const data = await response.json().catch(() => ({}));
+
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem("token");
+                setMessageAjout("Ta session a expiré. Reconnecte-toi.");
+                setAjoutReussi(false);
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Impossible d'ajouter ce livre."
+                );
+            }
+
+            if (!data.book) {
+                throw new Error("Le serveur n'a pas renvoyé le livre ajouté.");
+            }
+
+            const entry = data.book;
+
+            const resultat = ajouterLivre({
+                id: entry.openLibraryId,
+                titre: entry.title,
+                auteur: entry.authors?.join(", ") || "Auteur inconnu",
                 genre: livre.genres?.[0] || "Genre non renseigné",
-                couverture: livre.thumbnail || "",
-                resume: description,
+                couverture: entry.thumbnail || "",
+                resume: entry.description || "",
+                publishedDate: entry.publishedDate || "",
+                statut: entry.status || "TO_READ",
             });
 
-            setMessageAjout(resultat.message);
-            setAjoutReussi(resultat.succes);
+            setMessageAjout(data.message || "Livre ajouté à la bibliothèque.");
+
+            // Le backend a confirmé l'ajout : on considère la requête réussie.
+            setAjoutReussi(true);
         } catch (error) {
             console.error("Erreur lors de l'ajout du livre :", error);
-            setMessageAjout("Impossible d'ajouter ce livre.");
+            setMessageAjout(error.message || "Une erreur est survenue.");
             setAjoutReussi(false);
         } finally {
             setAjoutEnCours(false);

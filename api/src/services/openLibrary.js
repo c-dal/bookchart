@@ -235,16 +235,8 @@ async function fetchWorkDetails(openLibraryId) {
     })
   );
 
-  // Certaines œuvres fournissent des genres sous forme de texte,
-  // d'autres sous forme de références.
   const genres = await Promise.all(
-    (work.genres ?? []).map(async (genre) => {
-      if (typeof genre === "string") {
-        return genre;
-      }
-
-      return fetchGenreName(genre);
-    })
+    (work.genres ?? []).map((genre) => fetchGenreName(genre))
   );
 
   return {
@@ -260,13 +252,21 @@ async function fetchWorkDetails(openLibraryId) {
   };
 }
 
+
 async function fetchGenreName(genreReference) {
   const key =
     typeof genreReference === "string"
       ? genreReference
       : genreReference?.key;
 
-  const match = key?.match(/^\/tags\/(OL\d+T)$/);
+  // Accepte une référence de tag Open Library ou un nom de genre.
+  if (typeof key !== "string") return null;
+
+  if (!key.startsWith("/tags/")) {
+    return key.trim() || null;
+  }
+
+  const match = key.match(/^\/tags\/(OL\d+T)$/);
 
   if (!match) return null;
 
