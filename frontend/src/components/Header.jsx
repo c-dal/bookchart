@@ -1,11 +1,11 @@
-import Navbar from './Navbar';
+import Navbar from "./Navbar";
 
 function Header() {
-    return (
-        <header className="site-header" role="banner">
-            <Navbar />
-        </header>
-    )
+  return (
+    <header className="site-header" role="banner">
+      <Navbar />
+    </header>
+  );
 }
 
 export default Header;

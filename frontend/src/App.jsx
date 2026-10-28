@@ -1,22 +1,30 @@
-import { useState } from 'react'
-import './App.css'
-import Header from './components/Header'
-import Auth from './pages/Auth'
+import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Header from "./components/Header";
+import Auth from "./pages/Auth";
+import Library from "./pages/Library";
+import Dashboard from "./pages/Dashboard";
+import { BooksProvider } from "./context/BooksContext";
 
 function App() {
   return (
-    <main className="app">
-      {/* La barre de navigation s'étend sur toute la largeur */}
-      <Header />
+    <BrowserRouter>
+      <BooksProvider>
+        <main className="app">
+          <Header />
 
-      {/* Contenu principal sous la barre de navigation */}
-      <Auth/>
+          <Routes>
+            <Route path="/home" element={<Dashboard />} />
+            <Route path="/Library" element={<Library />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/login" element={<Auth />} />
+          </Routes>
 
-      <footer className="app-footer">
-        <p>Footer</p>
-      </footer>
-    </main>
-  )
+          <footer className="app-footer"></footer>
+        </main>
+      </BooksProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
