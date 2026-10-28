@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Auth from "./pages/Auth";
 import Library from "./pages/Library";
 import Dashboard from "./pages/Dashboard";
+import Book from "./pages/Book";
 import { BooksProvider } from "./context/BooksContext";
 
 function App() {
@@ -16,7 +17,11 @@ function App() {
           <Routes>
             <Route path="/home" element={<Dashboard />} />
             <Route path="/Library" element={<Library />} />
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/livre/:bookid" element={<Book />} />
+            <Route
+              path="/"
+              element={<Navigate to="/home" replace />}
+            />
             <Route path="/login" element={<Auth />} />
           </Routes>
 

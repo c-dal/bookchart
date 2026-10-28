@@ -151,24 +151,13 @@ function Navbar() {
                     </div>
 
                     <div className="search-result-info">
-                      <span
+                      <Link
+                        to={`/Book/book/${encodeURIComponent(livre.openLibraryId)}`}
                         className="search-result-title"
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => {
-                          // Le titre est cliquable, sans lien externe.
-                        }}
-                        onKeyDown={(event) => {
-                          if (
-                            event.key === "Enter" ||
-                            event.key === " "
-                          ) {
-                            event.preventDefault();
-                          }
-                        }}
+                        onClick={() => setRechercheOuverte(false)}
                       >
                         {livre.title}
-                      </span>
+                      </Link>
 
                       <p>
                         {livre.authors?.length
