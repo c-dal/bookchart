@@ -6,6 +6,7 @@ const connectDB = require("./config/db");
 const authenticate = require("./middleware/auth");
 const { register, login } = require("./routes/authFunctions");
 const { searchRouter } = require("./routes/search");
+const { getUserBooks, changeBookStatus, removeBook } = require("./routes/libraryFunctions");
 
 const app = express();
 
@@ -48,6 +49,9 @@ async function startServer() {
 app.use("/api/search", searchRouter);
 app.post("/api/auth/register", register);
 app.post("/api/auth/login", login);
+app.get("/api/library", authenticate, getUserBooks);
+app.post("api/library/:bookId/remove", authenticate, removeBook )
+app.patch("/api/library/:bookId/status", authenticate, changeBookStatus);
 
 //test to see if the middleware auth works
 app.get("/api/library", authenticate, (req, res) => {
