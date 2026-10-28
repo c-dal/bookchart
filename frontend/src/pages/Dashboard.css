@@ -1,0 +1,169 @@
+
+.dashboard-page {
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 36px 0 60px;
+  color: #29213b;
+}
+
+.dashboard-intro {
+  margin-bottom: 30px;
+}
+
+.dashboard-intro h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+}
+
+.dashboard-intro p {
+  margin: 0;
+  color: #777181;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 42px;
+}
+
+.dashboard-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #ece8f3;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgb(40 25 70 / 5%);
+}
+
+.dashboard-stat span {
+  color: #716b7e;
+  font-size: 0.95rem;
+}
+
+.dashboard-stat strong {
+  font-size: 2rem;
+}
+
+.dashboard-stat-lu {
+  border-top: 4px solid #438b68;
+}
+
+.dashboard-stat-cours {
+  border-top: 4px solid #438b68;
+}
+
+.dashboard-stat-alire {
+  border-top: 4px solid #438b68;
+}
+
+.dashboard-section {
+  margin-bottom: 38px;
+}
+
+.dashboard-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.dashboard-section-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.dashboard-section-header a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.dashboard-section-header a:hover {
+  text-decoration: underline;
+}
+
+.dashboard-carrousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 4px 2px 16px;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.dashboard-livre {
+  flex: 0 0 160px;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.dashboard-livre img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #eeeaf4;
+  box-shadow: 0 4px 12px rgb(40 25 70 / 12%);
+}
+
+.dashboard-livre h3 {
+  margin: 10px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-livre p {
+    font-size:small;
+}
+
+.dashboard-vide,
+.dashboard-message {
+  color: #777181;
+}
+
+@media (max-width: 650px) {
+  .dashboard-page {
+    width: calc(100% - 28px);
+    padding-top: 24px;
+  }
+
+  .dashboard-stats {
+    gap: 10px;
+  }
+
+  .dashboard-stat {
+    padding: 14px 10px;
+    gap: 8px;
+  }
+
+  .dashboard-stat span {
+    font-size: 0.8rem;
+  }
+
+  .dashboard-stat strong {
+    font-size: 1.6rem;
+  }
+
+  .dashboard-livre {
+    flex-basis: 125px;
+  }
+
+  .dashboard-section-header h2 {
+    font-size: 1.1rem;
+  }
+}
+
+.livre-auteur{
+    font-size:small;
+    color: #302622;
+}

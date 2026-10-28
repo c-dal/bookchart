@@ -2,6 +2,7 @@
 import { useState } from "react";
 import logo from "../assets/bookchart_logo_auth.png";
 import { registerUser, loginUser } from "../services/authService";
+import "./Auth.css";
 
 function Auth() {
   const [mode, setMode] = useState("connexion");
@@ -47,6 +48,11 @@ function Auth() {
           email: email,
           password: password,
         });
+        console.log("Réponse de connexion :", data);
+        //on stock le token de connexion de l'utilisateur s'il y en a un(pour l'instant a ajouter par la suite au const data await loginUser)
+        if(data.token) {
+            localStorage.setItem("token", data.token);
+        }
 
         setSuccess(data.message || "Connexion réussie !");
         
