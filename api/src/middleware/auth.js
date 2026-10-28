@@ -6,8 +6,6 @@ function unauthorized(res, message) {
 
 function authenticate(req, res, next){
     const tokenHeader = req.headers.token;
-    console.log("Authorization header reçu :", Boolean(req.headers.authorization));
-    console.log("Headers reçus :", Object.keys(req.headers));
 
     if (!tokenHeader || !tokenHeader.startsWith("Bearer ")) {
         return unauthorized(res, "Token missing");
