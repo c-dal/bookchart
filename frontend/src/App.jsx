@@ -3,21 +3,26 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Auth from "./pages/Auth";
 import Library from "./pages/Library";
+import Dashboard from "./pages/Dashboard";
+import { BooksProvider } from "./context/BooksContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <main className="app">
-        <Header />
+      <BooksProvider>
+        <main className="app">
+          <Header />
 
-        <Routes>
-          <Route path="/home" element={<Auth />} />
-          <Route path="/Library" element={<Library />} />
-          <Route path="/" element={<Navigate to="/home" replace />} />
-        </Routes>
+          <Routes>
+            <Route path="/home" element={<Dashboard />} />
+            <Route path="/Library" element={<Library />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/login" element={<Auth />} />
+          </Routes>
 
-        <footer className="app-footer"></footer>
-      </main>
+          <footer className="app-footer"></footer>
+        </main>
+      </BooksProvider>
     </BrowserRouter>
   );
 }

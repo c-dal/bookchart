@@ -47,7 +47,7 @@ function Auth() {
           email: email,
           password: password,
         });
-        //console.log("Réponse de connexion :", data);
+        console.log("Réponse de connexion :", data);
         //on stock le token de connexion de l'utilisateur s'il y en a un(pour l'instant a ajouter par la suite au const data await loginUser)
         if(data.token) {
             localStorage.setItem("token", data.token);
