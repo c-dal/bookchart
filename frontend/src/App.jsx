@@ -16,8 +16,8 @@ function App() {
 
           <Routes>
             <Route path="/home" element={<Dashboard />} />
-            <Route path="/Library" element={<Library />} />
-            <Route path="/livre/:bookid" element={<Book />} />
+            <Route path="/library" element={<Library />} />
+            <Route path="/book/:bookid" element={<Book />} />
             <Route
               path="/"
               element={<Navigate to="/home" replace />}
