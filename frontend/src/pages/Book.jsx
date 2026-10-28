@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { useBooks } from "../context/BooksContext";
 import { authenticatedFetch } from "../services/authService";
 import "./Book.css";
-import { authenticatedFetch } from "../services/authService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,9 +13,8 @@ function Book() {
     const [chargement, setChargement] = useState(true);
     const [erreur, setErreur] = useState("");
 
-    const { livres, ajouterLivre } = useBooks();
+    const { livres, rechargerBibliotheque } = useBooks();
     const [messageAjout, setMessageAjout] = useState("");
-    const [ajoutEnCours, setAjoutEnCours] = useState(false);
     const [ajoutReussi, setAjoutReussi] = useState(false);
     const [ajoutEnCours, setAjoutEnCours] = useState(false);
 
@@ -37,7 +35,7 @@ function Book() {
 
         try {
             const response = await authenticatedFetch(
-                `${API_URL}/api/book/add/${encodeURIComponent(bookid)}`,
+                `${API_URL}/book/add/${encodeURIComponent(bookid)}`,
                 { method: "POST" }
             );
 
@@ -52,7 +50,9 @@ function Book() {
 
             if (!response.ok) {
                 throw new Error(
-                    data.message || "Impossible d'ajouter ce livre."
+                    data.error?.message ||
+                    data.message ||
+                    "Impossible d'ajouter ce livre."
                 );
             }
 
@@ -60,22 +60,11 @@ function Book() {
                 throw new Error("Le serveur n'a pas renvoyé le livre ajouté.");
             }
 
-            const entry = data.book;
-
-            const resultat = ajouterLivre({
-                id: entry.openLibraryId,
-                titre: entry.title,
-                auteur: entry.authors?.join(", ") || "Auteur inconnu",
-                genre: livre.genres?.[0] || "Genre non renseigné",
-                couverture: entry.thumbnail || "",
-                resume: entry.description || "",
-                publishedDate: entry.publishedDate || "",
-                statut: entry.status || "TO_READ",
-            });
+            // Le backend a confirmé l'ajout : on recharge la bibliothèque
+            // depuis MongoDB (pas de second POST).
+            await rechargerBibliotheque();
 
             setMessageAjout(data.message || "Livre ajouté à la bibliothèque.");
-
-            // Le backend a confirmé l'ajout : on considère la requête réussie.
             setAjoutReussi(true);
         } catch (error) {
             console.error("Erreur lors de l'ajout du livre :", error);
