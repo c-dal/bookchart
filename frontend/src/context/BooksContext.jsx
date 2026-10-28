@@ -1,10 +1,9 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
-import { getBooks } from "../services/bookService";
 
 const BooksContext = createContext(null);
 
 const statutsLecture = ["À lire", "En cours", "Lu"];
+const STORAGE_KEY = "bookchart_livres";
 
 const livresExemple = [
   {
@@ -33,53 +32,45 @@ const livresExemple = [
   },
 ];
 
-export function BooksProvider({ children }) {
-  const [livres, setLivres] = useState(livresExemple);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+function chargerLivresLocaux() {
+  try {
+    const livresSauvegardes = localStorage.getItem(STORAGE_KEY);
 
-  useEffect(() => {
-    let actif = true;
+    if (livresSauvegardes !== null) {
+      const livres = JSON.parse(livresSauvegardes);
 
-    async function chargerLivres() {
-      try {
-        const data = await getBooks();
-
-        if (actif) {
-          setLivres(
-            data.map((livre) => ({
-              ...livre,
-              statut: statutsLecture.includes(livre.statut)
-                ? livre.statut
-                : "À lire",
-            }))
-          );
-          setError("");
-        }
-      } catch {
-        if (actif) {
-          setError(
-            "Impossible de charger les livres depuis l'API. Les exemples sont affichés."
-          );
-        }
-      } finally {
-        if (actif) setLoading(false);
+      if (Array.isArray(livres)) {
+        return livres;
       }
     }
+  } catch (erreur) {
+    console.error("Impossible de lire les livres sauvegardés :", erreur);
+  }
 
-    chargerLivres();
+  return livresExemple;
+}
 
-    return () => {
-      actif = false;
-    };
-  }, []);
+export function BooksProvider({ children }) {
+  const [livres, setLivres] = useState(chargerLivresLocaux);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(livres));
+    } catch (erreur) {
+      console.error("Impossible de sauvegarder les livres :", erreur);
+    }
+  }, [livres]);
 
   function changerStatut(id, nouveauStatut) {
-    if (!statutsLecture.includes(nouveauStatut)) return;
+    if (!statutsLecture.includes(nouveauStatut)) {
+      return;
+    }
 
     setLivres((livresActuels) =>
       livresActuels.map((livre) =>
-        livre.id === id ? { ...livre, statut: nouveauStatut } : livre
+        livre.id === id
+          ? { ...livre, statut: nouveauStatut }
+          : livre
       )
     );
   }
@@ -94,8 +85,8 @@ export function BooksProvider({ children }) {
     <BooksContext.Provider
       value={{
         livres,
-        loading,
-        error,
+        loading: false,
+        error: "",
         changerStatut,
         supprimerLivre,
       }}
@@ -114,3 +105,4 @@ export function useBooks() {
 
   return context;
 }
+
