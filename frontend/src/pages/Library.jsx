@@ -151,7 +151,9 @@ function Library() {
         </label>
       </div>
 
-      {loading && <p>Chargement des livres...</p>}
+      {loading && (
+        <p className="bibliotheque-info">Chargement des livres...</p>
+      )}
 
       {error && (
         <p className="bibliotheque-message" role="status">
@@ -166,7 +168,9 @@ function Library() {
       )}
 
       {!loading && livresAffiches.length === 0 && (
-        <p>Aucun livre ne correspond à ces filtres.</p>
+        <p className="bibliotheque-info">
+          Aucun livre ne correspond à ces filtres.
+        </p>
       )}
 
       <div className="livres-liste">
