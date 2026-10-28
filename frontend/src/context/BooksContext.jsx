@@ -61,6 +61,34 @@ export function BooksProvider({ children }) {
     }
   }, [livres]);
 
+  function ajouterLivre(nouveauLivre) {
+    if (!nouveauLivre?.id || !nouveauLivre?.titre) {
+      return { succes: false, message: "Les informations du livre sont incomplètes." };
+    }
+
+    const idExiste = livres.some(
+      (livre) => String(livre.id) === String(nouveauLivre.id)
+    );
+
+    if (idExiste) {
+      return { succes: false, message: "Ce livre est déjà dans ta bibliothèque." };
+    }
+
+    const livrePrepare = {
+      id: nouveauLivre.id,
+      titre: nouveauLivre.titre,
+      auteur: nouveauLivre.auteur || "Auteur inconnu",
+      genre: nouveauLivre.genre || "Genre non renseigné",
+      couverture: nouveauLivre.couverture || "",
+      resume: nouveauLivre.resume || "",
+      statut: "À lire",
+    };
+
+    setLivres((livresActuels) => [...livresActuels, livrePrepare]);
+
+    return { succes: true, message: "Livre ajouté à ta bibliothèque !" };
+  }
+
   function changerStatut(id, nouveauStatut) {
     if (!statutsLecture.includes(nouveauStatut)) {
       return;
@@ -68,7 +96,7 @@ export function BooksProvider({ children }) {
 
     setLivres((livresActuels) =>
       livresActuels.map((livre) =>
-        livre.id === id
+        String(livre.id) === String(id)
           ? { ...livre, statut: nouveauStatut }
           : livre
       )
@@ -77,7 +105,7 @@ export function BooksProvider({ children }) {
 
   function supprimerLivre(id) {
     setLivres((livresActuels) =>
-      livresActuels.filter((livre) => livre.id !== id)
+      livresActuels.filter((livre) => String(livre.id) !== String(id))
     );
   }
 
@@ -87,6 +115,7 @@ export function BooksProvider({ children }) {
         livres,
         loading: false,
         error: "",
+        ajouterLivre,
         changerStatut,
         supprimerLivre,
       }}
@@ -105,4 +134,3 @@ export function useBooks() {
 
   return context;
 }
-

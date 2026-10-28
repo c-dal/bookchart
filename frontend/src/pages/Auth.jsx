@@ -2,6 +2,7 @@
 import { useState } from "react";
 import logo from "../assets/bookchart_logo_auth.png";
 import { registerUser, loginUser } from "../services/authService";
+import "./Auth.css";
 
 function Auth() {
   const [mode, setMode] = useState("connexion");
