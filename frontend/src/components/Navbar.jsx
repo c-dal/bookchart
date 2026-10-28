@@ -1,44 +1,186 @@
-
-import { useState } from "react";
-import logo_site from "./../assets/bookchart_logo_site.png";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import logo_site from "./../assets/bookchart_logo_site.png";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Navbar() {
+  const [recherche, setRecherche] = useState("");
+  const [resultats, setResultats] = useState([]);
+  const [chargement, setChargement] = useState(false);
+  const [erreur, setErreur] = useState("");
   const [menuOuvert, setMenuOuvert] = useState(false);
+  const [rechercheOuverte, setRechercheOuverte] = useState(false);
+
+  const searchContainerRef = useRef(null);
+
+  useEffect(() => {
+    const gererClicExterieur = (event) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setRechercheOuverte(false);
+      }
+    };
+
+    document.addEventListener("mousedown", gererClicExterieur);
+    document.addEventListener("touchstart", gererClicExterieur);
+
+    return () => {
+      document.removeEventListener("mousedown", gererClicExterieur);
+      document.removeEventListener("touchstart", gererClicExterieur);
+    };
+  }, []);
+
+  const lancerRecherche = async (event) => {
+    event.preventDefault();
+
+    const query = recherche.trim();
+
+    if (!query) {
+      setResultats([]);
+      setErreur("");
+      setRechercheOuverte(false);
+      return;
+    }
+
+    setChargement(true);
+    setErreur("");
+    setRechercheOuverte(true);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/search?q=${encodeURIComponent(query)}`
+      );
+
+      if (!response.ok) {
+        throw new Error("La recherche a échoué.");
+      }
+
+      const data = await response.json();
+      setResultats(Array.isArray(data.books) ? data.books : []);
+    } catch (error) {
+      console.error("Erreur de recherche :", error);
+      setResultats([]);
+      setErreur("Impossible de charger les résultats.");
+    } finally {
+      setChargement(false);
+    }
+  };
 
   return (
     <nav className="navbar navbar-light">
-      <a className="navbar-brand" href="/home">
+      <Link className="navbar-brand" to="/home">
         <img
           src={logo_site}
           width="50"
           height="50"
           className="d-inline-block align-top"
-          alt="Logo"
+          alt="Logo BookChart"
         />
         BookChart
-      </a>
+      </Link>
 
-      <form
-        className="search-bar"
-        role="search"
-        onSubmit={(event) => event.preventDefault()}
-      >
-        <input
-          className="search-input"
-          type="search"
-          placeholder="Rechercher un livre"
-          aria-label="Rechercher"
-        />
-
-        <button
-          className="search-button"
-          type="submit"
-          aria-label="Lancer la recherche"
+      <div className="search-container" ref={searchContainerRef}>
+        <form
+          className="search-bar"
+          role="search"
+          onSubmit={lancerRecherche}
         >
-          <i className="bi bi-search" aria-hidden="true"></i>
-        </button>
-      </form>
+          <input
+            className="search-input"
+            type="search"
+            placeholder="Rechercher un livre"
+            aria-label="Rechercher"
+            value={recherche}
+            onFocus={() => setRechercheOuverte(true)}
+            onChange={(event) => {
+              setRecherche(event.target.value);
+              setRechercheOuverte(true);
+            }}
+          />
+
+          <button
+            className="search-button"
+            type="submit"
+            aria-label="Lancer la recherche"
+            disabled={chargement}
+          >
+            <i className="bi bi-search" aria-hidden="true"></i>
+          </button>
+        </form>
+
+        {rechercheOuverte &&
+          (chargement || erreur || resultats.length > 0) && (
+            <div className="search-results">
+              {chargement && (
+                <p className="search-message">
+                  Recherche en cours...
+                </p>
+              )}
+
+              {erreur && (
+                <p className="search-message">{erreur}</p>
+              )}
+
+              {!chargement &&
+                resultats.map((livre) => (
+                  <div
+                    className="search-result-item"
+                    key={livre.openLibraryId}
+                  >
+                    <div className="search-result-cover-container">
+                      {livre.thumbnail ? (
+                        <img
+                          className="search-result-cover"
+                          src={livre.thumbnail}
+                          alt={`Couverture de ${livre.title}`}
+                        />
+                      ) : (
+                        <div
+                          className="search-result-cover-placeholder"
+                          aria-label="Aucune couverture disponible"
+                        >
+                          <i
+                            className="bi bi-book"
+                            aria-hidden="true"
+                          ></i>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="search-result-info">
+                      <span
+                        className="search-result-title"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          // Le titre est cliquable, sans lien externe.
+                        }}
+                        onKeyDown={(event) => {
+                          if (
+                            event.key === "Enter" ||
+                            event.key === " "
+                          ) {
+                            event.preventDefault();
+                          }
+                        }}
+                      >
+                        {livre.title}
+                      </span>
+
+                      <p>
+                        {livre.authors?.length
+                          ? livre.authors.join(", ")
+                          : "Auteur inconnu"}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+      </div>
 
       <div className="profile-menu-container">
         <button
@@ -70,7 +212,10 @@ function Navbar() {
                 // La déconnexion sera implémentée plus tard.
               }}
             >
-              <i className="bi bi-box-arrow-right" aria-hidden="true"></i>
+              <i
+                className="bi bi-box-arrow-right"
+                aria-hidden="true"
+              ></i>
               Déconnexion
             </button>
           </div>
@@ -81,4 +226,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
