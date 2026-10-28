@@ -82,7 +82,7 @@ function scoreBook(book, query) {
   ).length;
 
   if (queryTokens.length > 1 &&
-      matchedTitleTokens === queryTokens.length) {
+    matchedTitleTokens === queryTokens.length) {
     score += 25;
   }
 
@@ -91,7 +91,7 @@ function scoreBook(book, query) {
 
 function mapBook(book) {
   return {
-    openLibraryId: book.key,
+    openLibraryId: book.key.split("/").pop(),
     title: book.title,
     authors: book.author_name ?? [],
     authorKeys: book.author_key ?? [],
@@ -160,4 +160,116 @@ async function searchBooks(search, limit = 10) {
   };
 }
 
-module.exports = { searchBooks };
+
+async function fetchWorkDetails(openLibraryId) {
+  // On accepte uniquement un identifiant de type OL45804W.
+  if (!/^OL\d+W$/.test(openLibraryId)) {
+    const error = new Error("Identifiant Open Library invalide.");
+    error.status = 400;
+    throw error;
+  }
+
+  const url = `https://openlibrary.org/works/${encodeURIComponent(openLibraryId)}.json`;
+
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": "BookChart/1.0",
+    },
+    signal: AbortSignal.timeout(8000),
+  });
+
+  if (response.status === 404) {
+    const error = new Error("Livre introuvable sur Open Library.");
+    error.status = 404;
+    throw error;
+  }
+
+  if (!response.ok) {
+    const error = new Error("Open Library est temporairement indisponible.");
+    error.status = 502;
+    throw error;
+  }
+
+  const work = await response.json();
+
+  // Open Library peut renvoyer la description sous deux formats.
+  const description =
+    typeof work.description === "string"
+      ? work.description
+      : work.description?.value ?? null;
+
+  // Les auteurs d'une œuvre sont généralement référencés par leur clé.
+  const authorReferences = work.authors ?? [];
+
+  const authors = await Promise.all(
+    authorReferences.map(async (reference) => {
+      const authorKey = reference.author?.key;
+
+      if (!authorKey) return null;
+
+      try {
+        const authorResponse = await fetch(
+          `https://openlibrary.org${authorKey}.json`,
+          {
+            headers: { "User-Agent": "BookChart/1.0" },
+            signal: AbortSignal.timeout(5000),
+          }
+        );
+
+        if (!authorResponse.ok) return null;
+
+        const author = await authorResponse.json();
+        return author.name ?? null;
+      } catch {
+        // Un échec sur un auteur ne doit pas empêcher
+        // l'affichage du reste de la fiche.
+        return null;
+      }
+    })
+  );
+
+  const genres = await Promise.all(
+    (work.genres ?? []).map(fetchGenreName)
+  );
+
+
+  return {
+    openLibraryId: openLibraryId,
+    title: work.title ?? "Titre inconnu",
+    description,
+    authors: authors.filter(Boolean),
+    genres: genres.filter(Boolean),
+    thumbnail: work.covers?.[0]
+      ? `https://covers.openlibrary.org/b/id/${work.covers[0]}-L.jpg`
+      : null,
+    publishedDate: work.first_publish_date ?? null,
+  };
+}
+
+
+async function fetchGenreName(genreReference) {
+  // Accepte "/tags/OL169T" ou { key: "/tags/OL169T" }
+  const key =
+    typeof genreReference === "string"
+      ? genreReference
+      : genreReference?.key;
+
+  const match = key?.match(/^\/tags\/(OL\d+T)$/);
+
+  if (!match) return null;
+
+  const response = await fetch(
+    `https://openlibrary.org/tags/${match[1]}.json`,
+    {
+      headers: { "User-Agent": "BookChart/1.0" },
+      signal: AbortSignal.timeout(5000),
+    }
+  );
+
+  if (!response.ok) return null;
+
+  const tag = await response.json();
+  return tag.name ?? null;
+}
+
+module.exports = { searchBooks, fetchWorkDetails };
