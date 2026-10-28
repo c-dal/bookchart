@@ -34,4 +34,4 @@ router.get("/", async (req, res) => {
   }
 });
 
-module.exports = { booksRouter: router };
+module.exports = { searchRouter: router };
