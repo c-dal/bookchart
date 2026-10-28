@@ -1,7 +1,8 @@
-
 import { useState } from "react";
 import logo from "../assets/bookchart_logo_auth.png";
 import { registerUser, loginUser } from "../services/authService";
+import "./Auth.css";
+import { useNavigate } from "react-router-dom";
 
 function Auth() {
   const [mode, setMode] = useState("connexion");
@@ -14,6 +15,7 @@ function Auth() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -37,24 +39,33 @@ function Auth() {
           password: password,
         });
 
-        setSuccess("Ton compte a été créé avec succès !");
+        setSuccess(
+          "Ton compte a été créé avec succès ! Tu peux maintenant te connecter."
+        );
+
         setPseudo("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
+
+        // Pas de connexion automatique après l'inscription.
+        setMode("connexion");
       } else {
         const data = await loginUser({
           email: email,
           password: password,
         });
-        console.log("Réponse de connexion :", data);
-        //on stock le token de connexion de l'utilisateur s'il y en a un(pour l'instant a ajouter par la suite au const data await loginUser)
-        if(data.token) {
-            localStorage.setItem("token", data.token);
+
+        if (!data.token) {
+          throw new Error(
+            "La connexion n'a pas fourni de token d'authentification."
+          );
         }
 
-        setSuccess(data.message || "Connexion réussie !");
-        
+        localStorage.setItem("token", data.token);
+
+        // Une connexion réussie mène à /home.
+        navigate("/home", { replace: true });
       }
     } catch (err) {
       setError(err.message || "Une erreur est survenue.");
