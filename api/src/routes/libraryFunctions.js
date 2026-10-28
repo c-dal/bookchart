@@ -18,7 +18,7 @@ async function getUserBooks(req, res) {
 
 async function changeBookStatus(req, res) {
     try{
-        const newStatus = req.body
+        const newStatus = req.body.status
         const book = await LibraryEntry.findOne({
             _id: req.params.bookId
         })
@@ -26,7 +26,7 @@ async function changeBookStatus(req, res) {
         if (!book) {
             return sendError(res, 404, "NOT_FOUND", "Book not found");
         }
-        if (!["TO_READ", "CURRENT", "FINISHED"].includes(status)) {
+        if (!["TO_READ", "CURRENT", "FINISHED"].includes(newStatus)) {
             return sendError(res, 400, "INVALID_INPUT", "Invalid status");
         }
         
