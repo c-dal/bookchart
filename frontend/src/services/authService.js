@@ -36,6 +36,8 @@ export async function loginUser({ email, password }) {
 
 export async function authenticatedFetch(url, options = {}) {
   const token = localStorage.getItem("token"); //récupère le token enregistré pendant la connexion
+  window.dispatchEvent(new Event("auth-changed"));
+
 
   const response = await fetch(url, {
     ...options,
