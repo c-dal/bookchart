@@ -115,12 +115,36 @@ function Library() {
 
       <div className="livres-liste">
         {livresAffiches.map((livre) => (
-          <article className="livre-card" key={livre.id}>
-            <img
-              className="livre-couverture"
-              src={livre.couverture}
-              alt={`Couverture de ${livre.titre}`}
-            />
+          <article
+            className="livre-card"
+            key={livre.mongoId || livre.id}
+          >
+
+            {livre.couverture ? (
+              <img
+                className="livre-couverture"
+                src={livre.couverture}
+                alt={`Couverture de ${livre.titre}`}
+                loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                  event.currentTarget.nextElementSibling?.style.setProperty(
+                    "display",
+                    "flex"
+                  );
+                }}
+              />
+            ) : null}
+
+            <div
+              className="livre-couverture-placeholder"
+              role="img"
+              aria-label={`Aucune couverture disponible pour ${livre.titre}`}
+              style={{ display: livre.couverture ? "none" : "flex" }}
+            >
+              <i className="bi bi-book" aria-hidden="true"></i>
+            </div>
+
 
             <div className="livre-infos">
               <h2>{livre.titre}</h2>
