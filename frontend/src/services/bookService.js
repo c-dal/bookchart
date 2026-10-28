@@ -1,6 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-// À adapter lorsque la route backend sera créée.
 const BOOKS_ENDPOINT = `${API_URL}/library`;
 
 export async function getBooks() {

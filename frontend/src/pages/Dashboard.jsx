@@ -1,9 +1,59 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useBooks } from "../context/BooksContext";
 import "./Dashboard.css";
 
+function SectionLivres({ titre, liste }) {
+    return (
+        <section className="dashboard-section">
+            <div className="dashboard-section-header">
+                <h2>{titre}</h2>
+
+                <Link to="/Library">Voir ma bibliothèque →</Link>
+            </div>
+
+            {liste.length === 0 ? (
+                <p className="dashboard-vide">
+                    Aucun livre dans cette catégorie.
+                </p>
+            ) : (
+                <div className="dashboard-carrousel">
+                    {liste.map((livre) => (
+                        <article
+                            className="dashboard-livre"
+                            key={livre.mongoId || livre.id}
+                        >
+                            {livre.couverture && (
+                                <img
+                                    src={livre.couverture}
+                                    alt={`Couverture de ${livre.titre}`}
+                                    loading="lazy"
+                                    onError={(event) => {
+                                        event.currentTarget.style.visibility = "hidden";
+                                    }}
+                                />
+                            )}
+
+                            <h3>{livre.titre}</h3>
+                            <p>{livre.auteur}</p>
+                        </article>
+                    ))}
+                </div>
+            )}
+        </section>
+    );
+}
+
 function Dashboard() {
-    const { livres, loading, error } = useBooks();
+    const { livres, loading, error, rechargerBibliotheque } = useBooks();
+
+    // Recharge la bibliothèque de l'utilisateur connecté depuis MongoDB
+    // chaque fois que le tableau de bord s'affiche.
+    useEffect(() => {
+        if (localStorage.getItem("token")) {
+            rechargerBibliotheque();
+        }
+    }, [rechargerBibliotheque]);
 
     const livresLus = livres.filter((livre) => livre.statut === "Lu");
 
@@ -14,42 +64,6 @@ function Dashboard() {
     const livresALire = livres.filter(
         (livre) => !livre.statut || livre.statut === "À lire"
     );
-
-    function SectionLivres({ titre, liste }) {
-        return (
-            <section className="dashboard-section">
-                <div className="dashboard-section-header">
-                    <h2>{titre}</h2>
-
-                    <Link to="/Library">Voir ma bibliothèque →</Link>
-                </div>
-
-                {liste.length === 0 ? (
-                    <p className="dashboard-vide">
-                        Aucun livre dans cette catégorie.
-                    </p>
-                ) : (
-                    <div className="dashboard-carrousel">
-                        {liste.map((livre) => (
-                            <article className="dashboard-livre" key={livre.id}>
-                                <img
-                                    src={livre.couverture}
-                                    alt={`Couverture de ${livre.titre}`}
-                                    loading="lazy"
-                                    onError={(event) => {
-                                        event.currentTarget.style.visibility = "hidden";
-                                    }}
-                                />
-
-                                <h3>{livre.titre}</h3>
-                                <p>{livre.auteur}</p>
-                            </article>
-                        ))}
-                    </div>
-                )}
-            </section>
-        );
-    }
 
     return (
         <main className="dashboard-page">

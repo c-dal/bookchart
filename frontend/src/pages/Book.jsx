@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useBooks } from "../context/BooksContext";
+import { authenticatedFetch } from "../services/authService";
 import "./Book.css";
 import { authenticatedFetch } from "../services/authService";
 
@@ -15,6 +16,7 @@ function Book() {
 
     const { livres, ajouterLivre } = useBooks();
     const [messageAjout, setMessageAjout] = useState("");
+    const [ajoutEnCours, setAjoutEnCours] = useState(false);
     const [ajoutReussi, setAjoutReussi] = useState(false);
     const [ajoutEnCours, setAjoutEnCours] = useState(false);
 
@@ -25,8 +27,9 @@ function Book() {
         )
         : false;
 
+
     async function handleAjouterLivre() {
-        if (!livre || ajoutEnCours) return;
+        if (!livre || ajoutEnCours || livreDejaAjoute) return;
 
         setAjoutEnCours(true);
         setMessageAjout("");
@@ -83,6 +86,7 @@ function Book() {
         }
     }
 
+
     useEffect(() => {
         const controller = new AbortController();
 
@@ -94,7 +98,7 @@ function Book() {
             setAjoutReussi(false);
 
             try {
-                const response = await fetch(
+                const response = await authenticatedFetch(
                     `${API_URL}/book/${encodeURIComponent(bookid)}`,
                     { signal: controller.signal }
                 );
