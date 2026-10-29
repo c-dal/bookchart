@@ -4,6 +4,14 @@ const sendError = require("../utils/sendError");
 
 const ALLOWED_STATUSES = ["TO_READ", "CURRENT", "FINISHED"];
 
+// Open Library renvoie parfois la description sous forme d'objet
+// { type, value } au lieu d'une chaîne : on la normalise.
+function normaliseDescription(description) {
+    if (typeof description === "string") return description;
+    if (typeof description?.value === "string") return description.value;
+    return undefined;
+}
+
 async function getBookDetails(req, res) {
     try {
         const { openLibraryId } = req.params;
@@ -37,7 +45,18 @@ async function getBookDetails(req, res) {
 async function addBookToLibrary(req, res) {
     try {
         const { openLibraryId } = req.params;
-        const { status = "TO_READ" } = req.body;
+        const status = "TO_READ" ;
+
+        const userId = req.user?.userId;
+
+        if (!userId) {
+            return sendError(
+                res,
+                401,
+                "UNAUTHORIZED",
+                "Utilisateur non identifié."
+            );
+        }
 
         // Vérification des données reçues
         if (
@@ -66,14 +85,16 @@ async function addBookToLibrary(req, res) {
 
         // Enregistrement dans MongoDB
         const libraryEntry = await LibraryEntry.create({
-            userId: req.user.userId,
-            openLibraryId: book.openLibraryId,
-            title: book.title,
-            authors: book.authors,
-            genres: book.genres ?? [],
-            description: book.description ?? undefined,
+            userId,
+            openLibraryId: openLibraryId,
+            title: book.title || "Titre inconnu",
+            authors: Array.isArray(book.authors) ? book.authors : [],
+            genres: Array.isArray(book.genres) ? book.genres : [],
+            description: normaliseDescription(book.description),
             thumbnail: book.thumbnail ?? undefined,
-            publishedDate: book.publishedDate ?? undefined,
+            publishedDate: book.publishedDate
+                ? String(book.publishedDate)
+                : undefined,
             status,
         });
 

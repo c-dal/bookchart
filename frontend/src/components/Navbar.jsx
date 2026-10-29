@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo_site from "./../assets/bookchart_logo_site.png";
+import { authenticatedFetch } from "../services/authService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,6 +19,7 @@ function Navbar() {
 
   function handleLogout() {
     localStorage.removeItem("token");
+    window.dispatchEvent(new Event("auth-changed"));
     setMenuOuvert(false);
     setRechercheOuverte(false);
     setRecherche("");
@@ -60,12 +62,18 @@ function Navbar() {
     setErreur("");
     setRechercheOuverte(true);
 
+
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `${API_URL}/search?q=${encodeURIComponent(query)}`
       );
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("token");
+          throw new Error("Session expirée. Veuillez vous reconnecter.");
+        }
+
         throw new Error("La recherche a échoué.");
       }
 
@@ -74,7 +82,7 @@ function Navbar() {
     } catch (error) {
       console.error("Erreur de recherche :", error);
       setResultats([]);
-      setErreur("Impossible de charger les résultats.");
+      setErreur(error.message || "Impossible de charger les résultats.");
     } finally {
       setChargement(false);
     }

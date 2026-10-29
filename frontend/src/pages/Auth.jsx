@@ -63,7 +63,8 @@ function Auth() {
         }
 
         localStorage.setItem("token", data.token);
-
+        // Signale la connexion au BooksContext.
+        window.dispatchEvent(new Event("auth-changed"));
         // Une connexion réussie mène à /home.
         navigate("/home", { replace: true });
       }
