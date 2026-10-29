@@ -1,4 +1,14 @@
 const request = require("supertest");
+jest.mock("../services/openLibrary", () => ({
+    fetchWorkDetails: jest.fn(async (openLibraryId) => ({
+        openLibraryId,
+        title: "Test book",
+        authors: [],
+        genres: [],
+    })),
+    searchBooks: jest.fn(),
+}));
+
 const app = require("../app");
 
 const LibraryEntry = require("../models/LibraryEntry");
@@ -30,6 +40,7 @@ describe("GET /api/book", () => {
             .send({ status: "TO_READ" });
 
         expect(response.status).toBe(201);
+        expect(response.body.book.status).toBe("TO_READ");
     });
     
     it("prevent adding the same book twice", async () => {
@@ -54,6 +65,7 @@ describe("GET /api/book", () => {
             .send({ status: "TO_READ" });
 
         expect(response.status).toBe(400);
+        expect(response.body.error.code).toBe("INVALID_BOOK_ID");
     });
 
     it("do not accept status outside of predefined ones", async () => {
@@ -63,6 +75,7 @@ describe("GET /api/book", () => {
             .send({ status: "WRONG" });
 
         expect(response.status).toBe(400);
+        expect(response.body.error.code).toBe("INVALID_STATUS");
     });
         
 });

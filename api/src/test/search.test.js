@@ -1,4 +1,9 @@
 const request = require("supertest");
+jest.mock("../services/openLibrary", () => ({
+    fetchWorkDetails: jest.fn(),
+    searchBooks: jest.fn(async () => ({ total: 0, books: [] })),
+}));
+
 const app = require("../app");
 
 describe("GET /api/search", () => {
@@ -26,7 +31,7 @@ describe("GET /api/search", () => {
             .set("Authorization", `Bearer ${token}`);
 
         expect(response.status).toBe(200);
-        expect(response.body).toBeDefined();
+        expect(response.body.books).toBeDefined();
     });
 
     it("search books by name", async () => {
@@ -35,7 +40,7 @@ describe("GET /api/search", () => {
             .set("Authorization", `Bearer ${token}`);
 
         expect(response.status).toBe(200);
-        expect(response.body).toBeDefined();
+        expect(response.body.books).toBeDefined();
     });
 
     it("reject a missing search query", async () => {
@@ -62,6 +67,6 @@ describe("GET /api/search", () => {
             .set("Authorization", `Bearer ${token}`);
 
         expect(response.status).toBe(200);
-        expect(response.body).toBeDefined();
+        expect(response.body.books).toEqual([]);
     });
 });

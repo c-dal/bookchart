@@ -1,7 +1,8 @@
 services:
   frontend:
-    command: sh -c "npm install && npm run dev -- --host"
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: development
     ports:
       - "5173:5173"
     volumes:
@@ -49,10 +50,24 @@ services:
     environment:
       PORT: 3000
       MONGODB_URI: mongodb://mongo:27017/bookchart
-      CORS_ORIGIN: http://localhost:5173
+      CORS_ORIGIN: http://localhost:5174
     depends_on:
       mongo:
         condition: service_healthy
+
+  frontend-prod:
+    profiles:
+      - production
+    build:
+      context: ./frontend
+      target: production
+      args:
+        VITE_API_URL: http://localhost:3002/api
+    ports:
+      - "5174:80"
+    depends_on:
+      api-prod:
+        condition: service_started
 
   mongo:
     image: mongo:8

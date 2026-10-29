@@ -45,7 +45,7 @@ async function getBookDetails(req, res) {
 async function addBookToLibrary(req, res) {
     try {
         const { openLibraryId } = req.params;
-        const status = "TO_READ" ;
+        const status = req.body?.status ?? "TO_READ";
 
         const userId = req.user?.userId;
 
