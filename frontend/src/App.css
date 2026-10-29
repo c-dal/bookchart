@@ -14,7 +14,6 @@
   background-color: var(--nav-bg, var(--bg));
 }
 
-
 .site-header .navbar {
   position: relative;
   display: flex;
@@ -115,7 +114,6 @@
   line-height: 1;
 }
 
-
 .search-results {
   position: absolute;
   top: calc(100% + 8px);
@@ -209,7 +207,6 @@
   overflow-wrap: anywhere;
 }
 
-
 .profile-menu-container {
   position: relative;
   display: flex;
@@ -239,7 +236,6 @@
 .profile-menu-container .profile-link:hover {
   color: var(--accent);
 }
-
 
 .profile-dropdown {
   position: absolute;
@@ -282,7 +278,6 @@
   font-size: 1.1rem;
 }
 
-
 .main-content {
   width: 100%;
   max-width: 800px;
@@ -296,7 +291,6 @@
   line-height: 1.6;
 }
 
-
 .app-footer {
   width: 100%;
   margin-top: auto;
@@ -304,7 +298,6 @@
   color: var(--text);
   text-align: center;
 }
-
 
 @media (max-width: 768px) {
   .site-header .navbar {
@@ -339,7 +332,6 @@
     padding: 28px 16px;
   }
 }
-
 
 @media (max-width: 480px) {
   .site-header .navbar {

@@ -15,9 +15,15 @@ function Probe() {
       <output data-testid="loading">{String(loading)}</output>
       <output data-testid="error">{error}</output>
       <ul>
-        {livres.map((livre) => <li key={livre.id}>{livre.titre} - {livre.statut}</li>)}
+        {livres.map((livre) => (
+          <li key={livre.id}>
+            {livre.titre} - {livre.statut}
+          </li>
+        ))}
       </ul>
-      <button onClick={() => changerStatut("mongo-1", "En cours")}>Changer</button>
+      <button onClick={() => changerStatut("mongo-1", "En cours")}>
+        Changer
+      </button>
       <button onClick={() => supprimerLivre("mongo-1")}>Supprimer</button>
     </>
   );
@@ -29,14 +35,16 @@ describe("BooksProvider", () => {
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          books: [{
-            _id: "mongo-1",
-            openLibraryId: "ol-1",
-            title: "Le Petit Prince",
-            authors: ["Antoine de Saint-Exupéry"],
-            genres: ["Classique"],
-            status: "FINISHED",
-          }],
+          books: [
+            {
+              _id: "mongo-1",
+              openLibraryId: "ol-1",
+              title: "Le Petit Prince",
+              authors: ["Antoine de Saint-Exupéry"],
+              genres: ["Classique"],
+              status: "FINISHED",
+            },
+          ],
         }),
       })
       .mockResolvedValueOnce({
@@ -48,13 +56,21 @@ describe("BooksProvider", () => {
         json: async () => ({ message: "Supprimé" }),
       });
     localStorage.setItem("token", "token-test");
-    render(<BooksProvider><Probe /></BooksProvider>);
+    render(
+      <BooksProvider>
+        <Probe />
+      </BooksProvider>,
+    );
 
     expect(await screen.findByText("Le Petit Prince - Lu")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Changer" }));
-    expect(await screen.findByText("Le Petit Prince - En cours")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Le Petit Prince - En cours"),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Supprimer" }));
-    await waitFor(() => expect(screen.queryByText(/Le Petit Prince/)).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByText(/Le Petit Prince/)).not.toBeInTheDocument(),
+    );
     expect(screen.getByTestId("error")).toHaveTextContent("");
   });
 
@@ -65,11 +81,17 @@ describe("BooksProvider", () => {
       json: async () => ({ message: "API indisponible" }),
     });
     localStorage.setItem("token", "token-test");
-    render(<BooksProvider><Probe /></BooksProvider>);
+    render(
+      <BooksProvider>
+        <Probe />
+      </BooksProvider>,
+    );
 
-    await waitFor(() => expect(screen.getByTestId("error")).toHaveTextContent(
-      "Impossible de charger la bibliothèque."
-    ));
+    await waitFor(() =>
+      expect(screen.getByTestId("error")).toHaveTextContent(
+        "Impossible de charger la bibliothèque.",
+      ),
+    );
     expect(screen.getByTestId("loading")).toHaveTextContent("false");
   });
 });

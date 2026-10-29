@@ -1,54 +1,54 @@
 const mongoose = require("mongoose");
 
-const libraryEntrySchema = new mongoose.Schema({
+const libraryEntrySchema = new mongoose.Schema(
+  {
     openLibraryId: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     isbn: {
-        type: String,
-        default: null
+      type: String,
+      default: null,
     },
     title: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     authors: {
-        type: [String],
-        default: []
+      type: [String],
+      default: [],
     },
     genres: {
-        type: [String],
-        default: [],
+      type: [String],
+      default: [],
     },
     description: {
-        type: String,
+      type: String,
     },
     thumbnail: {
-        type: String
+      type: String,
     },
     publishedDate: {
-        type: String
+      type: String,
     },
     status: {
-        type: String,
-        enum: ['TO_READ', 'FINISHED', 'CURRENT'],
-        required: true
-    }
-}, { timestamps: true });
-
-libraryEntrySchema.index(
-    { userId: 1, openLibraryId: 1 },
-    { unique: true }
+      type: String,
+      enum: ["TO_READ", "FINISHED", "CURRENT"],
+      required: true,
+    },
+  },
+  { timestamps: true },
 );
+
+libraryEntrySchema.index({ userId: 1, openLibraryId: 1 }, { unique: true });
 
 libraryEntrySchema.index({ userId: 1, status: 1 });
 
-const LibraryEntry = mongoose.model('LibraryEntry', libraryEntrySchema);
+const LibraryEntry = mongoose.model("LibraryEntry", libraryEntrySchema);
 
 module.exports = LibraryEntry;

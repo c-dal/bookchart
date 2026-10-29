@@ -1,12 +1,8 @@
 const OPEN_LIBRARY_URL = "https://openlibrary.org/search.json";
 
-const FIELDS = [
-  "key",
-  "title",
-  "author_name",
-  "cover_i",
-  "author_key",
-].join(",");
+const FIELDS = ["key", "title", "author_name", "cover_i", "author_key"].join(
+  ",",
+);
 
 function createServiceError(status, code, message) {
   const error = new Error(message);
@@ -40,14 +36,14 @@ async function fetchBooks(params, limit = 10) {
         "User-Agent": "BookChart/1.0",
       },
       signal: AbortSignal.timeout(8000),
-    }
+    },
   );
 
   if (!response.ok) {
     throw createServiceError(
       502,
       "OPEN_LIBRARY_UNAVAILABLE",
-      "Open Library est temporairement indisponible."
+      "Open Library est temporairement indisponible.",
     );
   }
 
@@ -81,13 +77,10 @@ function scoreBook(book, query) {
   }
 
   const matchedTitleTokens = queryTokens.filter((token) =>
-    title.includes(token)
+    title.includes(token),
   ).length;
 
-  if (
-    queryTokens.length > 1 &&
-    matchedTitleTokens === queryTokens.length
-  ) {
+  if (queryTokens.length > 1 && matchedTitleTokens === queryTokens.length) {
     score += 25;
   }
 
@@ -120,7 +113,7 @@ async function searchBooks(search, limit = 10) {
   if (tokens.length >= 2) {
     searches.push(
       fetchBooks({ title: tokens[0] }, 10),
-      fetchBooks({ author: tokens[tokens.length - 1] }, 10)
+      fetchBooks({ author: tokens[tokens.length - 1] }, 10),
     );
   }
 
@@ -134,7 +127,7 @@ async function searchBooks(search, limit = 10) {
     throw createServiceError(
       502,
       "OPEN_LIBRARY_UNAVAILABLE",
-      "Toutes les recherches Open Library ont échoué."
+      "Toutes les recherches Open Library ont échoué.",
     );
   }
 
@@ -163,14 +156,11 @@ async function searchBooks(search, limit = 10) {
 }
 
 async function fetchWorkDetails(openLibraryId) {
-  if (
-    typeof openLibraryId !== "string" ||
-    !/^OL\d+W$/.test(openLibraryId)
-  ) {
+  if (typeof openLibraryId !== "string" || !/^OL\d+W$/.test(openLibraryId)) {
     throw createServiceError(
       400,
       "INVALID_BOOK_ID",
-      "Identifiant Open Library invalide."
+      "Identifiant Open Library invalide.",
     );
   }
 
@@ -187,7 +177,7 @@ async function fetchWorkDetails(openLibraryId) {
     throw createServiceError(
       404,
       "BOOK_NOT_FOUND",
-      "Livre introuvable sur Open Library."
+      "Livre introuvable sur Open Library.",
     );
   }
 
@@ -195,7 +185,7 @@ async function fetchWorkDetails(openLibraryId) {
     throw createServiceError(
       502,
       "OPEN_LIBRARY_UNAVAILABLE",
-      "Open Library est temporairement indisponible."
+      "Open Library est temporairement indisponible.",
     );
   }
 
@@ -204,7 +194,7 @@ async function fetchWorkDetails(openLibraryId) {
   const description =
     typeof work.description === "string"
       ? work.description
-      : work.description?.value ?? null;
+      : (work.description?.value ?? null);
 
   const authorReferences = work.authors ?? [];
 
@@ -222,7 +212,7 @@ async function fetchWorkDetails(openLibraryId) {
               "User-Agent": "BookChart/1.0",
             },
             signal: AbortSignal.timeout(5000),
-          }
+          },
         );
 
         if (!authorResponse.ok) return null;
@@ -232,11 +222,11 @@ async function fetchWorkDetails(openLibraryId) {
       } catch {
         return null;
       }
-    })
+    }),
   );
 
   const genres = await Promise.all(
-    (work.genres ?? []).map((genre) => fetchGenreName(genre))
+    (work.genres ?? []).map((genre) => fetchGenreName(genre)),
   );
 
   return {
@@ -252,12 +242,9 @@ async function fetchWorkDetails(openLibraryId) {
   };
 }
 
-
 async function fetchGenreName(genreReference) {
   const key =
-    typeof genreReference === "string"
-      ? genreReference
-      : genreReference?.key;
+    typeof genreReference === "string" ? genreReference : genreReference?.key;
 
   // Accepte une référence de tag Open Library ou un nom de genre.
   if (typeof key !== "string") return null;
@@ -278,7 +265,7 @@ async function fetchGenreName(genreReference) {
           "User-Agent": "BookChart/1.0",
         },
         signal: AbortSignal.timeout(5000),
-      }
+      },
     );
 
     if (!response.ok) return null;

@@ -10,7 +10,7 @@ const { authenticatedFetch, rechargerBibliotheque } = vi.hoisted(() => ({
 
 vi.mock("../services/authService", () => ({ authenticatedFetch }));
 vi.mock("../context/books-context", async (importOriginal) => ({
-  ...await importOriginal(),
+  ...(await importOriginal()),
   useBooks: () => ({
     livres: [],
     rechargerBibliotheque,
@@ -34,7 +34,7 @@ function renderBook() {
         <Route path="/book/:bookid" element={<Book />} />
         <Route path="/home" element={<p>Accueil</p>} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -70,21 +70,21 @@ describe("détail d'un livre", () => {
 
     renderBook();
     expect(
-      await screen.findByRole("heading", { name: "Fondation" })
+      await screen.findByRole("heading", { name: "Fondation" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText("Aucune couverture disponible")
+      screen.getByLabelText("Aucune couverture disponible"),
     ).toBeInTheDocument();
     expect(screen.getByText("Une description détaillée.")).toBeInTheDocument();
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Ajouter à ma bibliothèque" })
+      screen.getByRole("button", { name: "Ajouter à ma bibliothèque" }),
     );
 
     await waitFor(() => {
       expect(authenticatedFetch).toHaveBeenCalledWith(
         expect.stringContaining("/book/add/ol-42"),
-        { method: "POST" }
+        { method: "POST" },
       );
     });
 
@@ -93,7 +93,7 @@ describe("détail d'un livre", () => {
       expect(rechargerBibliotheque).toHaveBeenCalledTimes(1);
     });
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "Livre ajouté à la bibliothèque."
+      "Livre ajouté à la bibliothèque.",
     );
   });
 
@@ -119,11 +119,11 @@ describe("détail d'un livre", () => {
     await screen.findByRole("heading", { name: "Fondation" });
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Ajouter à ma bibliothèque" })
+      screen.getByRole("button", { name: "Ajouter à ma bibliothèque" }),
     );
 
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "Impossible d'ajouter le livre à la bibliothèque."
+      "Impossible d'ajouter le livre à la bibliothèque.",
     );
     expect(rechargerBibliotheque).not.toHaveBeenCalled();
   });
@@ -133,10 +133,12 @@ describe("détail d'un livre", () => {
     renderBook();
 
     expect(
-      await screen.findByText("Impossible de charger les informations du livre.")
+      await screen.findByText(
+        "Impossible de charger les informations du livre.",
+      ),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /Retour à l’accueil/ })
+      screen.getByRole("link", { name: /Retour à l’accueil/ }),
     ).toHaveAttribute("href", "/home");
   });
 });
