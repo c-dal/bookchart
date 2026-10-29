@@ -1,4 +1,5 @@
 const LibraryEntry = require("../models/LibraryEntry");
+const sendError = require("../utils/sendError");
 
 async function getUserBooks(req, res) {
   try {
@@ -20,7 +21,8 @@ async function changeBookStatus(req, res) {
     try{
         const newStatus = req.body.status
         const book = await LibraryEntry.findOne({
-            _id: req.params.bookId
+            _id: req.params.bookId,
+            userId: req.user.userId
         })
 
         if (!book) {
@@ -42,7 +44,8 @@ async function changeBookStatus(req, res) {
 async function removeBook(req, res) {
     try{
         const book = await LibraryEntry.findOneAndDelete({
-            _id: req.params.bookId
+            _id: req.params.bookId,
+            userId: req.user.userId
         })
 
         if (!book) {
