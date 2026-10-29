@@ -3,87 +3,85 @@ const sendError = require("../utils/sendError");
 
 async function getUserBooks(req, res) {
   try {
-    const userId = req.user.userId;
-
-    const books = await LibraryEntry.find({ userId });
-
+    const books = await LibraryEntry.find({ userId: req.user.userId });
     return res.status(200).json(books);
   } catch (error) {
     console.error("Error fetching user books:", error);
-
-    return res.status(500).json({
-      error: "Impossible de récupérer votre bibliothèque.",
-    });
+    return sendError(
+      res,
+      500,
+      "FETCH_FAILED",
+      "Impossible de récupérer votre bibliothèque."
+    );
   }
 }
 
 async function changeBookStatus(req, res) {
-    try{
-        const newStatus = req.body.status
-        const book = await LibraryEntry.findOne({
-            _id: req.params.bookId,
-            userId: req.user.userId
-        })
+  try {
+    const { status } = req.body;
 
-        if (!book) {
-            return sendError(res, 404, "NOT_FOUND", "Book not found");
-        }
-        if (!["TO_READ", "CURRENT", "FINISHED"].includes(newStatus)) {
-            return sendError(res, 400, "INVALID_INPUT", "Invalid status");
-        }
-        
-        book.status = newStatus;
-        await book.save();
-
-        return res.status(200).json(book);
-    } catch (error) {
-        return res.status(500).json({ error: "Failed to update status" });
+    if (!["TO_READ", "CURRENT", "FINISHED"].includes(status)) {
+      return sendError(
+        res,
+        400,
+        "INVALID_STATUS",
+        "Le statut de lecture est invalide."
+      );
     }
 
-    book.status = newStatus;
-    await book.save();
-
-    return res.status(200).json({
-      message: "Statut du livre mis à jour.",
-      book,
+    const book = await LibraryEntry.findOne({
+      _id: req.params.bookId,
+      userId: req.user.userId,
     });
+
+    if (!book) {
+      return sendError(
+        res,
+        404,
+        "NOT_FOUND",
+        "Livre introuvable dans votre bibliothèque."
+      );
+    }
+
+    book.status = status;
+    await book.save();
+    return res.status(200).json(book);
   } catch (error) {
     console.error("Error updating book status:", error);
-
-    return res.status(500).json({
-      error: "UPDATE_FAILED",
-      message: "Impossible de modifier le statut du livre.",
-    });
+    return sendError(
+      res,
+      500,
+      "UPDATE_FAILED",
+      "Impossible de modifier le statut du livre."
+    );
   }
 }
 
 async function removeBook(req, res) {
-    try{
-        const book = await LibraryEntry.findOneAndDelete({
-            _id: req.params.bookId,
-            userId: req.user.userId
-        })
+  try {
+    const book = await LibraryEntry.findOneAndDelete({
+      _id: req.params.bookId,
+      userId: req.user.userId,
+    });
 
-        if (!book) {
-            return sendError(res, 404, "NOT_FOUND", "Book not found");
-        }
-
-        return res.status(200).json(book);
-    } catch (error) {
-        return res.status(500).json({ error: "Failed to update status" });
+    if (!book) {
+      return sendError(
+        res,
+        404,
+        "NOT_FOUND",
+        "Livre introuvable dans votre bibliothèque."
+      );
     }
 
-    return res.status(200).json({
-      message: "Livre supprimé de votre bibliothèque.",
-      book,
-    });
+    return res.status(200).json(book);
   } catch (error) {
     console.error("Error removing book:", error);
-
-    return res.status(500).json({
-      error: "DELETE_FAILED",
-      message: "Impossible de supprimer le livre.",
-    });
+    return sendError(
+      res,
+      500,
+      "DELETE_FAILED",
+      "Impossible de supprimer le livre."
+    );
   }
 }
 

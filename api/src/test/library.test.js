@@ -1,4 +1,14 @@
 const request = require("supertest");
+jest.mock("../services/openLibrary", () => ({
+    fetchWorkDetails: jest.fn(async (openLibraryId) => ({
+        openLibraryId,
+        title: "Test book",
+        authors: [],
+        genres: [],
+    })),
+    searchBooks: jest.fn(),
+}));
+
 const app = require("../app");
 
 const LibraryEntry = require("../models/LibraryEntry");
