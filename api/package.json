@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-
     "lint": "eslint src && prettier --check \"src/**/*.js\" eslint.config.mjs package.json",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",

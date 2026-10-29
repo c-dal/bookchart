@@ -14,22 +14,35 @@ La création des fichiers `.env`, les variables requises et les différences ent
 
 ## Tests et vérification
 
-L'API ne définit actuellement aucun script de test automatisé dans `package.json`. Pour analyser les fichiers avec ESLint depuis la racine du dépôt, lancez la commande dans un conteneur ponctuel :
+L'API utilise Jest. Depuis la racine du dépôt, lancez toute la suite dans le conteneur de test :
 
 ```powershell
-docker compose run --build --rm --no-deps api sh -c "npm install && npm run lint"
+docker compose --profile test run --build --rm api-test
 ```
 
-Cette commande n'a pas besoin de démarrer MongoDB. Pour exécuter ESLint directement sur la machine, depuis le dossier `api` :
+Les tests utilisent une base MongoDB en mémoire et simulent les réponses Open Library : il n'est pas nécessaire de lancer MongoDB ou d'avoir accès au réseau pour ces services. Pour les exécuter directement sur la machine, depuis le dossier `api` :
 
-```bash
+```powershell
 npm ci
-npm run lint
+npm test -- --runInBand
 ```
 
-`npm start` et `npm run dev` restent les commandes pour démarrer l'API ; `npm run lint` ne lance pas le serveur ni ne nécessite MongoDB.
+`npm run test:watch` lance Jest en mode interactif.
 
-La route de santé permet également de vérifier que le serveur répond, mais l'API ne démarre qu'après une connexion MongoDB réussie.
+ESLint et Prettier sont exécutés ensemble par le script `lint`. Depuis la racine du dépôt :
+
+```powershell
+npm --prefix api ci
+npm --prefix api run lint
+```
+
+Ou dans le conteneur de test Docker, sans démarrer MongoDB :
+
+```powershell
+docker compose --profile test run --build --rm api-test npm run lint
+```
+
+La route de santé permet de vérifier que le serveur répond, mais l'API ne démarre qu'après une connexion MongoDB réussie.
 
 Après avoir démarré l'API et MongoDB (par exemple avec `docker compose up --build api` depuis la racine), vérifiez <http://localhost:3000/api/health>. La réponse attendue est `{"status":"ok"}`. Pour lancer la vérification de bout en bout de l'application, les tests automatisés disponibles se trouvent dans le [README du frontend](../frontend/README.md#tests).
 
@@ -55,16 +68,38 @@ Pour le rechargement automatique pendant le développement, utilisez `npm run de
 Depuis la racine du dépôt, démarrez l'API et MongoDB :
 
 ```bash
-docker compose up --build api
+docker compose up --build -d api
 ```
 
-Compose exécute `npm install` dans le conteneur avant de lancer l'API, y compris lorsque le volume `node_modules` existe déjà. L'API est disponible sur <http://localhost:3000>. Pour consulter ses journaux :
+L'API de développement est disponible sur <http://localhost:3000>. Pour consulter ses journaux :
 
 ```bash
 docker compose logs -f api
 ```
 
-Compose démarre également le service MongoDB requis. Pour démarrer l'ensemble de l'application, consultez le [README global](../README.md).
+Compose démarre également MongoDB si nécessaire. Pour démarrer l'ensemble du frontend et de l'API en développement, consultez le [README global](../README.md#développement-lancer-et-consulter-lapplication).
+
+Pour démarrer l'API de production avec MongoDB, configurez d'abord `api/.env` comme indiqué dans la [configuration générale](../README.md#configuration), puis lancez depuis la racine :
+
+```powershell
+docker compose --profile production up --build -d api-prod
+```
+
+L'API est alors disponible sur <http://localhost:3002/api/health>. Pour démarrer aussi l'interface web de production, utilisez plutôt la commande `frontend-prod` du [README global](../README.md#production-locale-lancer-et-consulter-lapplication).
+
+Pour arrêter les services de développement sans supprimer les données persistées :
+
+```powershell
+docker compose down
+```
+
+Pour arrêter les services de production :
+
+```powershell
+docker compose --profile production down
+```
+
+N'ajoutez pas `-v` si vous souhaitez conserver les volumes.
 
 ## Routes
 

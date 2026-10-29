@@ -13,10 +13,10 @@ La création des fichiers `.env`, la variable `VITE_API_URL` et son rôle sont d
 
 ## Tests
 
-Depuis la racine du dépôt, lancez les tests, ESLint et le build dans un conteneur ponctuel. Cette commande reconstruit l'image si nécessaire, installe les dépendances dans le conteneur et ne démarre pas l'API ni MongoDB :
+Depuis la racine du dépôt, lancez les tests, ESLint et le build dans un conteneur ponctuel. Cette commande reconstruit l'image si nécessaire ; les dépendances sont installées pendant la construction. Elle ne démarre pas l'API ni MongoDB :
 
 ```powershell
-docker compose run --build --rm --no-deps frontend sh -c "npm install && npm test && npm run lint && npm run build"
+docker compose run --build --rm --no-deps frontend sh -c "npm test && npm run lint && npm run build"
 ```
 
 Pour exécuter uniquement les tests :
@@ -29,6 +29,27 @@ Les tests utilisent des réponses API simulées : il n'est pas nécessaire de d�
 
 ```powershell
 docker compose exec frontend npm run test:watch
+```
+
+Vous pouvez aussi lancer les tests directement depuis la racine du dépôt :
+
+```powershell
+npm --prefix frontend ci
+npm --prefix frontend test
+```
+
+Le script `lint` exécute ESLint puis Prettier en mode vérification. Depuis la racine du dépôt :
+
+```powershell
+npm --prefix frontend ci
+npm --prefix frontend run lint
+```
+
+Si vous lancez le lint dans le conteneur de développement et voyez `prettier: not found`, le volume `node_modules` est probablement ancien. Synchronisez les dépendances, puis relancez le lint :
+
+```powershell
+docker compose exec frontend npm install
+docker compose exec frontend npm run lint
 ```
 
 ### Exécution locale sans Docker
@@ -50,13 +71,13 @@ npm run test:watch
 
 ## Démarrage avec Docker
 
-Depuis la racine du dépôt, démarrez le frontend et ses dépendances :
+Depuis la racine du dépôt, démarrez le frontend en développement ainsi que l'API et MongoDB :
 
 ```bash
-docker compose up --build frontend
+docker compose up --build -d
 ```
 
-Compose exécute `npm install` dans le conteneur avant de lancer Vite. Ouvrez <http://localhost:5173>. Compose démarre aussi l'API et MongoDB.
+Ouvrez <http://localhost:5173>. Les dépendances du frontend sont installées lors de la construction de son image de développement.
 
 Pour exécuter les vérifications dans un conteneur frontend déjà démarré :
 
@@ -75,4 +96,4 @@ Pour exécuter les vérifications dans un conteneur frontend déjà démarré :
 
 Les statuts affichés dans l'interface (« À lire », « En cours », « Lu ») sont convertis en statuts API (`TO_READ`, `CURRENT`, `FINISHED`).
 
-Pour démarrer frontend, API et MongoDB ensemble, consultez le [README global](../README.md).
+Pour lancer l'application complète en production locale et la consulter sur <http://localhost:5174>, consultez le [README global](../README.md#production-locale-lancer-et-consulter-lapplication).
