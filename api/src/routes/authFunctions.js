@@ -51,7 +51,7 @@ async function register(req, res) {
       user: { id: user._id.toString(), email: user.email },
       token,
     });
-  } catch (error) {
+  } catch {
     return sendError(res, 500, "INTERNAL_ERROR", "Registration failed");
   }
 };

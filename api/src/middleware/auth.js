@@ -17,7 +17,7 @@ function authenticate(req, res, next) {
         const decoded = validateToken(token);
         req.user = decoded
         return next()
-    } catch (error) {
+    } catch {
         return unauthorized(res, "Invalid or expired token");
     }
 }

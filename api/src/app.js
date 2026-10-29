@@ -8,7 +8,6 @@ const { register, login } = require("./routes/authFunctions");
 const { searchRouter } = require("./routes/search");
 const { getUserBooks, changeBookStatus, removeBook } = require("./routes/libraryFunctions");
 const { bookRouter } = require("./routes/book");
-const sendError = require("./utils/sendError");
 
 const app = express();
 
