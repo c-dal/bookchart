@@ -10,9 +10,11 @@ export async function registerUser({ username, email, password }) {
   });
 
   const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
     throw new Error(data.message || "Impossible de créer le compte.");
   }
+
   return data;
 }
 
@@ -26,7 +28,6 @@ export async function loginUser({ email, password }) {
   });
 
   const data = await response.json().catch(() => ({}));
-
   if (!response.ok) {
     throw new Error(data.message || "Identifiants incorrects.");
   }
@@ -35,7 +36,7 @@ export async function loginUser({ email, password }) {
 }
 
 export async function authenticatedFetch(url, options = {}) {
-  const token = localStorage.getItem("token"); //récupère le token enregistré pendant la connexion
+  const token = localStorage.getItem("token");
 
   const response = await fetch(url, {
     ...options,
