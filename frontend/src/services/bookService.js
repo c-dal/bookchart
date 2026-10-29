@@ -15,9 +15,7 @@ export async function getBooks() {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(
-      data.message || "Impossible de récupérer les livres."
-    );
+    throw new Error(data.message || "Impossible de récupérer les livres.");
   }
 
   // On accepte une liste directe ou un objet contenant "books".

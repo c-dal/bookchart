@@ -62,10 +62,9 @@ function Navbar() {
     setErreur("");
     setRechercheOuverte(true);
 
-
     try {
       const response = await authenticatedFetch(
-        `${API_URL}/search?q=${encodeURIComponent(query)}`
+        `${API_URL}/search?q=${encodeURIComponent(query)}`,
       );
 
       if (!response.ok) {
@@ -90,10 +89,7 @@ function Navbar() {
 
   return (
     <nav className="navbar navbar-light">
-      <Link
-        className="navbar-brand"
-        to={estConnecte ? "/home" : "/login"}
-      >
+      <Link className="navbar-brand" to={estConnecte ? "/home" : "/login"}>
         <img
           src={logo_site}
           width="50"
@@ -106,11 +102,7 @@ function Navbar() {
 
       {estConnecte && (
         <div className="search-container" ref={searchContainerRef}>
-          <form
-            className="search-bar"
-            role="search"
-            onSubmit={lancerRecherche}
-          >
+          <form className="search-bar" role="search" onSubmit={lancerRecherche}>
             <input
               className="search-input"
               type="search"
@@ -138,14 +130,10 @@ function Navbar() {
             (chargement || erreur || resultats.length > 0) && (
               <div className="search-results">
                 {chargement && (
-                  <p className="search-message">
-                    Recherche en cours...
-                  </p>
+                  <p className="search-message">Recherche en cours...</p>
                 )}
 
-                {erreur && (
-                  <p className="search-message">{erreur}</p>
-                )}
+                {erreur && <p className="search-message">{erreur}</p>}
 
                 {!chargement &&
                   resultats.map((livre) => (
@@ -165,10 +153,7 @@ function Navbar() {
                             className="search-result-cover-placeholder"
                             aria-label="Aucune couverture disponible"
                           >
-                            <i
-                              className="bi bi-book"
-                              aria-hidden="true"
-                            ></i>
+                            <i className="bi bi-book" aria-hidden="true"></i>
                           </div>
                         )}
                       </div>

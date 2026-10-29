@@ -40,7 +40,7 @@ function Auth() {
         });
 
         setSuccess(
-          "Ton compte a été créé avec succès ! Tu peux maintenant te connecter."
+          "Ton compte a été créé avec succès ! Tu peux maintenant te connecter.",
         );
 
         setPseudo("");
@@ -58,7 +58,7 @@ function Auth() {
 
         if (!data.token) {
           throw new Error(
-            "La connexion n'a pas fourni de token d'authentification."
+            "La connexion n'a pas fourni de token d'authentification.",
           );
         }
 
@@ -145,9 +145,7 @@ function Auth() {
               type="password"
               placeholder="Ton mot de passe"
               autoComplete={
-                mode === "inscription"
-                  ? "new-password"
-                  : "current-password"
+                mode === "inscription" ? "new-password" : "current-password"
               }
               minLength={mode === "inscription" ? 8 : undefined}
               value={password}
@@ -169,9 +167,7 @@ function Auth() {
                 autoComplete="new-password"
                 minLength={8}
                 value={confirmPassword}
-                onChange={(event) =>
-                  setConfirmPassword(event.target.value)
-                }
+                onChange={(event) => setConfirmPassword(event.target.value)}
                 required
               />
             </div>
@@ -189,11 +185,7 @@ function Auth() {
             </p>
           )}
 
-          <button
-            className="auth-submit"
-            type="submit"
-            disabled={loading}
-          >
+          <button className="auth-submit" type="submit" disabled={loading}>
             {loading
               ? "Chargement..."
               : mode === "connexion"

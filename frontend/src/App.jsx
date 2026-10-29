@@ -19,19 +19,11 @@ function estConnecte() {
 }
 
 function RouteProtegee() {
-  return estConnecte() ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" replace />
-  );
+  return estConnecte() ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 function RouteConnexion() {
-  return estConnecte() ? (
-    <Navigate to="/home" replace />
-  ) : (
-    <Auth />
-  );
+  return estConnecte() ? <Navigate to="/home" replace /> : <Auth />;
 }
 
 function App() {
@@ -53,20 +45,14 @@ function App() {
             <Route
               path="/"
               element={
-                <Navigate
-                  to={estConnecte() ? "/home" : "/login"}
-                  replace
-                />
+                <Navigate to={estConnecte() ? "/home" : "/login"} replace />
               }
             />
 
             <Route
               path="*"
               element={
-                <Navigate
-                  to={estConnecte() ? "/home" : "/login"}
-                  replace
-                />
+                <Navigate to={estConnecte() ? "/home" : "/login"} replace />
               }
             />
           </Routes>

@@ -1,12 +1,12 @@
 :root {
   --text: #302622;
-  --text-h: #731E2D;
-  --bg: #EDE2CF;
+  --text-h: #731e2d;
+  --bg: #ede2cf;
   --accent: #438b68;
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'Neuton', serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Neuton", serif;
   --border: #302622;
-  --nav-bg: #EDE2CF;
+  --nav-bg: #ede2cf;
 
   font-family: var(--sans);
   font-size: 18px;
