@@ -1,14 +1,11 @@
 import {
-    createContext,
-    useContext,
     useEffect,
     useRef,
     useState,
     useCallback,
 } from "react";
 import { authenticatedFetch } from "../services/authService";
-
-const BooksContext = createContext(null);
+import { BooksContext } from "./books-context";
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Événement à déclencher à la connexion et à la déconnexion :
@@ -20,7 +17,7 @@ const statutsLecture = ["À lire", "En cours", "Lu"];
 const statutVersBackend = {
     "À lire": "TO_READ",
     "En cours": "CURRENT",
-    Lu: "FINISHED",
+    "Lu": "FINISHED",
 };
 
 const statutVersFrontend = {
@@ -365,14 +362,4 @@ export function BooksProvider({ children }) {
             {children}
         </BooksContext.Provider>
     );
-}
-
-export function useBooks() {
-    const context = useContext(BooksContext);
-
-    if (!context) {
-        throw new Error("useBooks doit être utilisé dans BooksProvider.");
-    }
-
-    return context;
 }

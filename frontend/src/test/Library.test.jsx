@@ -39,7 +39,8 @@ const { changerStatut, supprimerLivre, rechargerBibliotheque, mockContext } =
     },
   }));
 
-vi.mock("../context/BooksContext", () => ({
+vi.mock("../context/books-context", async (importOriginal) => ({
+  ...await importOriginal(),
   useBooks: () => ({
     ...mockContext,
     changerStatut,

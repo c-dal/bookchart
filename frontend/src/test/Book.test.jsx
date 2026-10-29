@@ -9,7 +9,8 @@ const { authenticatedFetch, rechargerBibliotheque } = vi.hoisted(() => ({
 }));
 
 vi.mock("../services/authService", () => ({ authenticatedFetch }));
-vi.mock("../context/BooksContext", () => ({
+vi.mock("../context/books-context", async (importOriginal) => ({
+  ...await importOriginal(),
   useBooks: () => ({
     livres: [],
     rechargerBibliotheque,

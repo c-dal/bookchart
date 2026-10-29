@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo_site from "./../assets/bookchart_logo_site.png";
 import { authenticatedFetch } from "../services/authService";
 

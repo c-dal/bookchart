@@ -12,6 +12,10 @@ vi.mock("../services/authService", () => ({
 
 vi.mock("../context/BooksContext", () => ({
   BooksProvider: ({ children }) => children,
+}));
+
+vi.mock("../context/books-context", async (importOriginal) => ({
+  ...await importOriginal(),
   useBooks: () => ({
     livres: [],
     loading: false,

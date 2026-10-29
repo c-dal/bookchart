@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useBooks } from "../context/BooksContext";
+import { useBooks } from "../context/books-context";
 import "./Dashboard.css";
 
 function SectionLivres({ titre, liste }) {

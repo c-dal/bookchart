@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { BooksProvider, useBooks } from "../context/BooksContext";
+import { BooksProvider } from "../context/BooksContext";
+import { useBooks } from "../context/books-context";
 
 const { authenticatedFetch } = vi.hoisted(() => ({
   authenticatedFetch: vi.fn(),

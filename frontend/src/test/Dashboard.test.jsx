@@ -12,7 +12,8 @@ const { mockContext } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("../context/BooksContext", () => ({
+vi.mock("../context/books-context", async (importOriginal) => ({
+  ...await importOriginal(),
   useBooks: () => mockContext,
 }));
 

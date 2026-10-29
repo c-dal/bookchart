@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useBooks } from "../context/BooksContext";
+import { useBooks } from "../context/books-context";
 import { authenticatedFetch } from "../services/authService";
 import "./Book.css";
 
