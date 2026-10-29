@@ -14,3 +14,22 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Tests
+
+Install the frontend dependencies, then run the test suite with Vitest and Testing Library:
+
+```bash
+npm install
+npm test
+```
+
+Use watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+The tests mock backend requests and cover authentication, protected navigation,
+the dashboard, library filtering and sorting, book status changes, deletion,
+book details, adding books, loading/error states, and missing or broken covers.

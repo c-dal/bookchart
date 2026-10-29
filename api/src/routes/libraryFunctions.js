@@ -3,9 +3,9 @@ const sendError = require("../utils/sendError");
 
 async function getUserBooks(req, res) {
   try {
-    const books = await LibraryEntry.find({
-      userId: req.user.userId,
-    });
+    const userId = req.user.userId;
+
+    const books = await LibraryEntry.find({ userId });
 
     return res.status(200).json(books);
   } catch (error) {
@@ -39,6 +39,22 @@ async function changeBookStatus(req, res) {
     } catch (error) {
         return res.status(500).json({ error: "Failed to update status" });
     }
+
+    book.status = newStatus;
+    await book.save();
+
+    return res.status(200).json({
+      message: "Statut du livre mis à jour.",
+      book,
+    });
+  } catch (error) {
+    console.error("Error updating book status:", error);
+
+    return res.status(500).json({
+      error: "UPDATE_FAILED",
+      message: "Impossible de modifier le statut du livre.",
+    });
+  }
 }
 
 async function removeBook(req, res) {
@@ -56,7 +72,23 @@ async function removeBook(req, res) {
     } catch (error) {
         return res.status(500).json({ error: "Failed to update status" });
     }
+
+    return res.status(200).json({
+      message: "Livre supprimé de votre bibliothèque.",
+      book,
+    });
+  } catch (error) {
+    console.error("Error removing book:", error);
+
+    return res.status(500).json({
+      error: "DELETE_FAILED",
+      message: "Impossible de supprimer le livre.",
+    });
+  }
 }
 
-
-module.exports = { getUserBooks, changeBookStatus, removeBook };
+module.exports = {
+  getUserBooks,
+  changeBookStatus,
+  removeBook,
+};

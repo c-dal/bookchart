@@ -1,4 +1,3 @@
-
 .dashboard-page {
   width: min(1200px, calc(100% - 40px));
   margin: 0 auto;
@@ -123,7 +122,7 @@
 }
 
 .dashboard-livre p {
-    font-size:small;
+  font-size: small;
 }
 
 .dashboard-vide,
@@ -163,7 +162,20 @@
   }
 }
 
-.livre-auteur{
-    font-size:small;
-    color: #302622;
+.livre-auteur {
+  font-size: small;
+  color: #302622;
+}
+
+.dashboard-couverture-placeholder {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  color: #777;
+  font-size: 40px;
+  box-sizing: border-box;
 }
