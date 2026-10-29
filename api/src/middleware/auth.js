@@ -1,14 +1,11 @@
 const { validateToken } = require("../utils/jwt");
-
-function unauthorized(res, message) {
-  return res.status(401).json({ error: { code: "UNAUTHORIZED", message } });
-}
+const sendError = require("../utils/sendError");
 
 function authenticate(req, res, next) {
   const tokenHeader = req.headers.authorization;
 
   if (!tokenHeader || !tokenHeader.startsWith("Bearer ")) {
-    return unauthorized(res, "Token missing");
+    return sendError(res, 401, "UNAUTHORIZED", "Token missing");
   }
 
   const token = tokenHeader.split(" ")[1];
@@ -18,7 +15,7 @@ function authenticate(req, res, next) {
     req.user = decoded;
     return next();
   } catch {
-    return unauthorized(res, "Invalid or expired token");
+    return sendError(res, 401, "UNAUTHORIZED", "Invalid or expired token");
   }
 }
 
