@@ -7,7 +7,8 @@ const authenticate = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/:openLibraryId", authenticate, getBookDetails);
-router.post("/add/:openLibraryId", authenticate, addBookToLibrary);
+router.use(authenticate);
+router.get("/:openLibraryId", getBookDetails);
+router.post("/add/:openLibraryId", addBookToLibrary);
 
 module.exports = { bookRouter: router };

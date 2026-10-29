@@ -5,7 +5,6 @@ const sendError = require("../utils/sendError");
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-//register
 async function register(req, res) {
   try {
     const notNormalizedemail = req.body.email;
@@ -27,7 +26,6 @@ async function register(req, res) {
       return sendError(res, 400, "INVALID_INPUT", "Email is not valid");
     }
 
-    //check if the user already exists and if it does send an error
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return sendError(
@@ -76,7 +74,6 @@ async function register(req, res) {
   }
 }
 
-//login
 async function login(req, res) {
   try {
     const notNormalizedemail = req.body.email;
