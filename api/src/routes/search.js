@@ -5,10 +5,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const query =
-      typeof req.query.q === "string"
-        ? req.query.q.trim()
-        : "";
+    const query = typeof req.query.q === "string" ? req.query.q.trim() : "";
 
     if (!query) {
       return res.status(400).json({

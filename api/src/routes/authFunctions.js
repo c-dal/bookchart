@@ -7,13 +7,18 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 //register
 async function register(req, res) {
-  try{
-    const notNormalizedemail = req.body.email 
-    const pw = req.body.password
-    const username = req.body.username
+  try {
+    const notNormalizedemail = req.body.email;
+    const pw = req.body.password;
+    const username = req.body.username;
 
     if (!notNormalizedemail || !pw || !username) {
-      return sendError(res, 400, "INVALID_INPUT", "Email and password are required");
+      return sendError(
+        res,
+        400,
+        "INVALID_INPUT",
+        "Email and password are required",
+      );
     }
 
     const email = notNormalizedemail.trim().toLowerCase();
@@ -25,24 +30,39 @@ async function register(req, res) {
     //check if the user already exists and if it does send an error
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
-      return sendError(res, 409, "EMAIL_ALREADY_USED", "This email is already in use");
+      return sendError(
+        res,
+        409,
+        "EMAIL_ALREADY_USED",
+        "This email is already in use",
+      );
     }
 
     const existingUserName = await User.findOne({ username: username });
     if (existingUserName) {
-      return sendError(res, 409, "USERNAME_ALREADY_USED", "This username is already in use");
+      return sendError(
+        res,
+        409,
+        "USERNAME_ALREADY_USED",
+        "This username is already in use",
+      );
     }
 
     if (pw.length < 8) {
-      return sendError(res, 400, "INVALID_INPUT", "Password must be at least 8 characters");
+      return sendError(
+        res,
+        400,
+        "INVALID_INPUT",
+        "Password must be at least 8 characters",
+      );
     }
-        
+
     const pwhash = await bcrypt.hash(pw, 10);
 
     const user = await User.create({
-        username: username,
-        email: email,
-        passwordHash: pwhash
+      username: username,
+      email: email,
+      passwordHash: pwhash,
     });
 
     const token = generateToken(user);
@@ -54,16 +74,21 @@ async function register(req, res) {
   } catch {
     return sendError(res, 500, "INTERNAL_ERROR", "Registration failed");
   }
-};
+}
 
 //login
 async function login(req, res) {
-  try{
-    const notNormalizedemail = req.body.email
-    const pwhash = req.body.password
+  try {
+    const notNormalizedemail = req.body.email;
+    const pwhash = req.body.password;
 
     if (!notNormalizedemail || !pwhash) {
-      return sendError(res, 400, "INVALID_INPUT", "Email and password are required");
+      return sendError(
+        res,
+        400,
+        "INVALID_INPUT",
+        "Email and password are required",
+      );
     }
 
     const email = notNormalizedemail.trim().toLowerCase();
@@ -77,7 +102,7 @@ async function login(req, res) {
     const isValid = await bcrypt.compare(pwhash, user.passwordHash);
 
     if (!isValid) {
-       return sendError(res, 401, "UNAUTHORIZED", "Invalid email or password");
+      return sendError(res, 401, "UNAUTHORIZED", "Invalid email or password");
     }
 
     const token = generateToken(user);
@@ -90,6 +115,6 @@ async function login(req, res) {
     console.error("Login error:", error);
     return sendError(res, 500, "INTERNAL_ERROR", "Login failed");
   }
-};
+}
 
 module.exports = { register, login };
