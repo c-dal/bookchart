@@ -11,7 +11,7 @@ async function getUserBooks(req, res) {
       res,
       500,
       "FETCH_FAILED",
-      "Impossible de récupérer votre bibliothèque."
+      "Impossible de récupérer votre bibliothèque.",
     );
   }
 }
@@ -25,7 +25,7 @@ async function changeBookStatus(req, res) {
         res,
         400,
         "INVALID_STATUS",
-        "Le statut de lecture est invalide."
+        "Le statut de lecture est invalide.",
       );
     }
 
@@ -39,7 +39,7 @@ async function changeBookStatus(req, res) {
         res,
         404,
         "NOT_FOUND",
-        "Livre introuvable dans votre bibliothèque."
+        "Livre introuvable dans votre bibliothèque.",
       );
     }
 
@@ -52,7 +52,7 @@ async function changeBookStatus(req, res) {
       res,
       500,
       "UPDATE_FAILED",
-      "Impossible de modifier le statut du livre."
+      "Impossible de modifier le statut du livre.",
     );
   }
 }
@@ -69,7 +69,7 @@ async function removeBook(req, res) {
         res,
         404,
         "NOT_FOUND",
-        "Livre introuvable dans votre bibliothèque."
+        "Livre introuvable dans votre bibliothèque.",
       );
     }
 
@@ -80,7 +80,7 @@ async function removeBook(req, res) {
       res,
       500,
       "DELETE_FAILED",
-      "Impossible de supprimer le livre."
+      "Impossible de supprimer le livre.",
     );
   }
 }

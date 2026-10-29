@@ -13,7 +13,12 @@ async function register(req, res) {
     const username = req.body.username;
 
     if (!notNormalizedemail || !pw || !username) {
-      return sendError(res, 401, "INVALID_INPUT", "The email, username and password are required");
+      return sendError(
+        res,
+        401,
+        "INVALID_INPUT",
+        "The email, username and password are required",
+      );
     }
 
     const email = notNormalizedemail.trim().toLowerCase();
@@ -91,7 +96,12 @@ async function login(req, res) {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      return sendError(res, 401, "UNAUTHORIZED", "Invalid user email or password");
+      return sendError(
+        res,
+        401,
+        "UNAUTHORIZED",
+        "Invalid user email or password",
+      );
     }
 
     const isValid = await bcrypt.compare(pwhash, user.passwordHash);
