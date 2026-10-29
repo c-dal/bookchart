@@ -2,7 +2,6 @@ const { fetchWorkDetails } = require("../services/openLibrary");
 const LibraryEntry = require("../models/LibraryEntry");
 const sendError = require("../utils/sendError");
 
-
 const ALLOWED_STATUSES = ["TO_READ", "CURRENT", "FINISHED"];
 
 // Open Library renvoie parfois la description sous forme d'objet
