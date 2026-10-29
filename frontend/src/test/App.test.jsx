@@ -12,6 +12,10 @@ vi.mock("../services/authService", () => ({
 
 vi.mock("../context/BooksContext", () => ({
   BooksProvider: ({ children }) => children,
+}));
+
+vi.mock("../context/books-context", async (importOriginal) => ({
+  ...(await importOriginal()),
   useBooks: () => ({
     livres: [],
     loading: false,
@@ -33,7 +37,7 @@ describe("navigation et authentification", () => {
     render(<App />);
 
     expect(
-      screen.getByRole("heading", { name: "Bienvenue sur BookChart" })
+      screen.getByRole("heading", { name: "Bienvenue sur BookChart" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Se connecter" })).toBeVisible();
   });
@@ -52,7 +56,9 @@ describe("navigation et authentification", () => {
     fireEvent.click(screen.getByRole("button", { name: "Se connecter" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Mon tableau de bord" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Mon tableau de bord" }),
+      ).toBeInTheDocument();
     });
     expect(localStorage.getItem("token")).toBe("token-test");
     expect(loginUser).toHaveBeenCalledWith({
@@ -60,7 +66,7 @@ describe("navigation et authentification", () => {
       password: "password",
     });
     expect(dispatchEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "auth-changed" })
+      expect.objectContaining({ type: "auth-changed" }),
     );
   });
 
@@ -77,7 +83,7 @@ describe("navigation et authentification", () => {
     fireEvent.click(screen.getByRole("button", { name: "Se connecter" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Identifiants incorrects."
+      "Identifiants incorrects.",
     );
     expect(localStorage.getItem("token")).toBeNull();
   });

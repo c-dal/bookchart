@@ -1,5 +1,8 @@
 const express = require("express");
-const { getBookDetails, addBookToLibrary } = require("../controllers/bookController");
+const {
+  getBookDetails,
+  addBookToLibrary,
+} = require("../controllers/bookController");
 const authenticate = require("../middleware/auth");
 
 const router = express.Router();

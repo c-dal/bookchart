@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useBooks } from "../context/BooksContext";
+import { useBooks } from "../context/books-context";
 import "./Library.css";
 
 function Library() {
@@ -37,8 +37,7 @@ function Library() {
       genreChoisi === "tous" || livre.genre === genreChoisi;
 
     const correspondStatut =
-      statutChoisi === "tous" ||
-      (livre.statut || "À lire") === statutChoisi;
+      statutChoisi === "tous" || (livre.statut || "À lire") === statutChoisi;
 
     return correspondGenre && correspondStatut;
   });
@@ -55,10 +54,9 @@ function Library() {
     return 0;
   });
 
-
   async function handleSupprimerLivre(mongoId) {
     const confirmation = window.confirm(
-      "Voulez-vous vraiment supprimer ce livre de votre bibliothèque ?"
+      "Voulez-vous vraiment supprimer ce livre de votre bibliothèque ?",
     );
 
     if (!confirmation) return;
@@ -67,18 +65,17 @@ function Library() {
 
     if (!resultat?.succes) {
       setMessageStatut(
-        resultat?.message || "Impossible de supprimer ce livre."
+        resultat?.message || "Impossible de supprimer ce livre.",
       );
     } else {
       setMessageStatut("");
     }
   }
 
-
   async function handleChangerStatut(mongoId, nouveauStatut) {
     if (!mongoId) {
       setMessageStatut(
-        "Identifiant du livre manquant. Recharge la bibliothèque."
+        "Identifiant du livre manquant. Recharge la bibliothèque.",
       );
       return;
     }
@@ -91,16 +88,14 @@ function Library() {
 
       if (!resultat?.succes) {
         setMessageStatut(
-          resultat?.message || "Impossible de modifier le statut."
+          resultat?.message || "Impossible de modifier le statut.",
         );
       }
     } catch (err) {
       console.error("Erreur de modification du statut :", err);
       setMessageStatut("Impossible de modifier le statut du livre.");
     } finally {
-      setStatutsEnCours((ids) =>
-        ids.filter((itemId) => itemId !== mongoId)
-      );
+      setStatutsEnCours((ids) => ids.filter((itemId) => itemId !== mongoId));
     }
   }
 
@@ -151,9 +146,7 @@ function Library() {
         </label>
       </div>
 
-      {loading && (
-        <p className="bibliotheque-info">Chargement des livres...</p>
-      )}
+      {loading && <p className="bibliotheque-info">Chargement des livres...</p>}
 
       {error && (
         <p className="bibliotheque-message" role="status">
@@ -175,10 +168,7 @@ function Library() {
 
       <div className="livres-liste">
         {livresAffiches.map((livre) => (
-          <article
-            className="livre-card"
-            key={livre.mongoId || livre.id}
-          >
+          <article className="livre-card" key={livre.mongoId || livre.id}>
             {livre.couverture ? (
               <img
                 className="livre-couverture"
@@ -189,7 +179,7 @@ function Library() {
                   event.currentTarget.style.display = "none";
                   event.currentTarget.nextElementSibling?.style.setProperty(
                     "display",
-                    "flex"
+                    "flex",
                   );
                 }}
               />
@@ -204,13 +194,10 @@ function Library() {
               <i className="bi bi-book" aria-hidden="true"></i>
             </div>
 
-
             <div className="livre-infos">
               <h2>{livre.titre}</h2>
 
-              <p className="livre-auteur">
-                {livre.auteur || "Auteur inconnu"}
-              </p>
+              <p className="livre-auteur">{livre.auteur || "Auteur inconnu"}</p>
 
               <p className="livre-genre">
                 {livre.genre || "Genre non renseigné"}
@@ -229,14 +216,10 @@ function Library() {
                   id={`statut-${livre.mongoId || livre.id}`}
                   value={livre.statut || "À lire"}
                   disabled={
-                    !livre.mongoId ||
-                    statutsEnCours.includes(livre.mongoId)
+                    !livre.mongoId || statutsEnCours.includes(livre.mongoId)
                   }
                   onChange={(event) =>
-                    handleChangerStatut(
-                      livre.mongoId,
-                      event.target.value
-                    )
+                    handleChangerStatut(livre.mongoId, event.target.value)
                   }
                 >
                   {statutsLecture.map((statut) => (

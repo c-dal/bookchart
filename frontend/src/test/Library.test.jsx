@@ -39,7 +39,8 @@ const { changerStatut, supprimerLivre, rechargerBibliotheque, mockContext } =
     },
   }));
 
-vi.mock("../context/BooksContext", () => ({
+vi.mock("../context/books-context", async (importOriginal) => ({
+  ...(await importOriginal()),
   useBooks: () => ({
     ...mockContext,
     changerStatut,
@@ -68,16 +69,16 @@ describe("bibliothèque", () => {
     render(<Library />);
 
     expect(
-      screen.getByRole("heading", { name: "Ma bibliothèque" })
+      screen.getByRole("heading", { name: "Ma bibliothèque" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Le Petit Prince" })
+      screen.getByRole("heading", { name: "Le Petit Prince" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Dune" })).toBeInTheDocument();
     expect(
       screen.getByRole("img", {
         name: "Aucune couverture disponible pour Dune",
-      })
+      }),
     ).toBeVisible();
     expect(screen.getByText("Aucun résumé disponible.")).toBeInTheDocument();
     expect(screen.getByText("Tous les genres")).toBeInTheDocument();
@@ -97,7 +98,7 @@ describe("bibliothèque", () => {
 
     fireEvent.change(selects[0], { target: { value: "Science-fiction" } });
     expect(
-      screen.queryByRole("heading", { name: "Le Petit Prince" })
+      screen.queryByRole("heading", { name: "Le Petit Prince" }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Dune" })).toBeInTheDocument();
 
@@ -121,7 +122,7 @@ describe("bibliothèque", () => {
     expect(
       screen.getByRole("img", {
         name: "Aucune couverture disponible pour Le Petit Prince",
-      })
+      }),
     ).toBeVisible();
   });
 
@@ -138,8 +139,10 @@ describe("bibliothèque", () => {
 
     // Le libellé du composant est « Statut de lecture : » (espace avant les deux-points).
     fireEvent.change(
-      screen.getAllByLabelText("Statut de lecture :", { selector: "select" })[0],
-      { target: { value: "En cours" } }
+      screen.getAllByLabelText("Statut de lecture :", {
+        selector: "select",
+      })[0],
+      { target: { value: "En cours" } },
     );
     await waitFor(() => {
       expect(changerStatut).toHaveBeenCalledWith("mongo-1", "En cours");
@@ -163,13 +166,15 @@ describe("bibliothèque", () => {
     mockContext.loading = false;
     mockContext.error = "Service indisponible";
     rerender(<Library />);
-    expect(screen.getByRole("status")).toHaveTextContent("Service indisponible");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Service indisponible",
+    );
 
     mockContext.error = "";
     mockContext.livres = [];
     rerender(<Library />);
     expect(
-      screen.getByText("Aucun livre ne correspond à ces filtres.")
+      screen.getByText("Aucun livre ne correspond à ces filtres."),
     ).toBeInTheDocument();
   });
 });

@@ -12,7 +12,8 @@ const { mockContext } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("../context/BooksContext", () => ({
+vi.mock("../context/books-context", async (importOriginal) => ({
+  ...(await importOriginal()),
   useBooks: () => mockContext,
 }));
 
@@ -54,18 +55,28 @@ describe("tableau de bord", () => {
     render(
       <MemoryRouter>
         <Dashboard />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: "Mon tableau de bord" })).toBeInTheDocument();
-    expect(screen.getByText("Livres lus").nextElementSibling).toHaveTextContent("1");
-    expect(screen.getByText("En cours de lecture").nextElementSibling).toHaveTextContent("1");
-    expect(screen.getByText("Livres à lire").nextElementSibling).toHaveTextContent("1");
-    expect(screen.getByRole("heading", { name: "Le Petit Prince" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Mon tableau de bord" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Livres lus").nextElementSibling).toHaveTextContent(
+      "1",
+    );
+    expect(
+      screen.getByText("En cours de lecture").nextElementSibling,
+    ).toHaveTextContent("1");
+    expect(
+      screen.getByText("Livres à lire").nextElementSibling,
+    ).toHaveTextContent("1");
+    expect(
+      screen.getByRole("heading", { name: "Le Petit Prince" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("img", {
         name: "Aucune couverture disponible pour Le Petit Prince",
-      })
+      }),
     ).toBeVisible();
     expect(mockContext.rechargerBibliotheque).toHaveBeenCalledTimes(1);
   });
@@ -78,15 +89,15 @@ describe("tableau de bord", () => {
     render(
       <MemoryRouter>
         <Dashboard />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText("Chargement des livres...")).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Bibliothèque indisponible"
+      "Bibliothèque indisponible",
     );
     expect(
-      screen.getByText("Aucun livre dans cette catégorie.")
+      screen.getByText("Aucun livre dans cette catégorie."),
     ).toBeInTheDocument();
   });
 });
