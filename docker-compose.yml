@@ -11,8 +11,9 @@ services:
       - api
 
   api:
-    command: sh -c "npm install && npm run dev"
-    build: ./api
+    build:
+      context: ./api
+      target: development
     ports:
       - "3000:3000"
     volumes:
@@ -21,6 +22,34 @@ services:
     environment:
       PORT: 3000
       MONGODB_URI: mongodb://mongo:27017/bookchart
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  api-test:
+    profiles:
+      - test
+    build:
+      context: ./api
+      target: test
+    environment:
+      NODE_ENV: test
+      JWT_SECRET_KEY: test-only-secret
+
+  api-prod:
+    profiles:
+      - production
+    build:
+      context: ./api
+      target: production
+    env_file:
+      - ./api/.env
+    ports:
+      - "3002:3000"
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/bookchart
+      CORS_ORIGIN: http://localhost:5173
     depends_on:
       mongo:
         condition: service_healthy
